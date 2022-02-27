@@ -4,56 +4,23 @@ import chess
 import cv2
 import numpy as np
 from helper import detect_state, get_square_image
-from internet_game import Internet_game
 from lichess_game import Lichess_game
-from commentator import Commentator_thread
-from lichess_commentator import Lichess_commentator
 
 
 class Game:
-    def __init__(self, board_basics, speech_thread, use_template, make_opponent, start_delay, comment_me,
-                 comment_opponent, drag_drop, language, token, roi_mask):
-        if token:
-            self.internet_game = Lichess_game(token)
-        else:
-            self.internet_game = Internet_game(use_template, start_delay, drag_drop)
-        self.make_opponent = make_opponent
+    def __init__(self, board_basics, token, roi_mask):
+        assert token
+        self.internet_game = Lichess_game(token) 
         self.board_basics = board_basics
-        self.speech_thread = speech_thread
         self.executed_moves = []
         self.played_moves = []
         self.board = chess.Board()
-        self.comment_me = comment_me
-        self.comment_opponent = comment_opponent
-        self.language = language
         self.roi_mask = roi_mask
         self.hog = cv2.HOGDescriptor((64, 64), (16, 16), (8, 8), (8, 8), 9)
         self.knn = cv2.ml.KNearest_create()
         self.features = None
         self.labels = None
-
-        if token:
-            commentator_thread = Lichess_commentator()
-            commentator_thread.daemon = True
-            commentator_thread.stream = self.internet_game.client.board.stream_game_state(self.internet_game.game_id)
-            commentator_thread.speech_thread = self.speech_thread
-            commentator_thread.game_state.we_play_white = self.internet_game.we_play_white
-            commentator_thread.comment_me = self.comment_me
-            commentator_thread.comment_opponent = self.comment_opponent
-            commentator_thread.language = self.language
-            self.commentator = commentator_thread
-        else:
-            commentator_thread = Commentator_thread()
-            commentator_thread.daemon = True
-            commentator_thread.speech_thread = self.speech_thread
-            commentator_thread.game_state.game_thread = self
-            commentator_thread.game_state.we_play_white = self.internet_game.we_play_white
-            commentator_thread.game_state.board_position_on_screen = self.internet_game.position
-            commentator_thread.comment_me = self.comment_me
-            commentator_thread.comment_opponent = self.comment_opponent
-            commentator_thread.language = self.language
-            self.commentator = commentator_thread
-
+     
     def initialize_hog(self, frame):
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         pieces = []
@@ -152,12 +119,6 @@ class Game:
             return False, ""
 
     def get_move_to_register(self):
-        if self.commentator:
-            if len(self.executed_moves) < len(self.commentator.game_state.registered_moves):
-                return self.commentator.game_state.registered_moves[len(self.executed_moves)]
-            else:
-                return None
-        else:
             return None
 
     def is_light_change(self, frame):
@@ -278,7 +239,6 @@ class Game:
             if success:
                 pass
             else:
-                self.speech_thread.put_text(self.language.move_failed)
                 print(self.board.fen())
                 return False
 
@@ -286,17 +246,10 @@ class Game:
 
         print("Move has been registered")
 
-        if self.internet_game.is_our_turn or self.make_opponent:
+        if self.internet_game.is_our_turn:
             self.internet_game.move(valid_move_UCI)
             self.played_moves.append(valid_move_UCI)
-            while self.commentator:
-                time.sleep(0.1)
-                move_to_register = self.get_move_to_register()
-                if move_to_register:
-                    valid_move_UCI = move_to_register
-                    break
         else:
-            self.speech_thread.put_text(valid_move_string[:4])
             self.played_moves.append(valid_move_UCI)
 
         self.executed_moves.append(self.board.san(valid_move_UCI))

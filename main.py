@@ -9,35 +9,14 @@ import platform
 from game import Game
 from board_basics import Board_basics
 from helper import perspective_transform
-from speech import Speech_thread
 from videocapture import Video_capture_thread
-from languages import *
 
-use_template = True
-make_opponent = False
-drag_drop = False
-comment_me = False
-comment_opponent = False
-start_delay = 5  # seconds
+
 cap_index = 0
 cap_api = cv2.CAP_ANY
-voice_index = 0
-language = English()
 token = "lip_v9e3Ie7aWgCmTaRoO9Q2"
 for argument in sys.argv:
-    if argument == "no-template":
-        use_template = False
-    elif argument == "make-opponent":
-        make_opponent = True
-    elif argument == "comment-me":
-        comment_me = True
-    elif argument == "comment-opponent":
-        comment_opponent = True
-    elif argument.startswith("delay="):
-        start_delay = int("".join(c for c in argument if c.isdigit()))
-    elif argument == "drag":
-        drag_drop = True
-    elif argument.startswith("cap="):
+    if argument.startswith("cap="):
         cap_index = int("".join(c for c in argument if c.isdigit()))
         platform_name = platform.system()
         if platform_name == "Darwin":
@@ -46,15 +25,6 @@ for argument in sys.argv:
             cap_api = cv2.CAP_V4L2
         else:
             cap_api = cv2.CAP_DSHOW
-    elif argument.startswith("voice="):
-        voice_index = int("".join(c for c in argument if c.isdigit()))
-    elif argument.startswith("lang="):
-        if "German" in argument:
-            language = German()
-        elif "Russian" in argument:
-            language = Russian()
-        elif "Turkish" in argument:
-            language = Turkish()
     elif argument.startswith("token="):
         token = argument[len("token="):].strip()
 MOTION_START_THRESHOLD = 1.0
@@ -71,13 +41,8 @@ corners, side_view_compensation, rotation_count, roi_mask = pickle.load(infile)
 infile.close()
 board_basics = Board_basics(side_view_compensation, rotation_count)
 
-speech_thread = Speech_thread()
-speech_thread.daemon = True
-speech_thread.index = voice_index
-speech_thread.start()
 
-game = Game(board_basics, speech_thread, use_template, make_opponent, start_delay, comment_me, comment_opponent,
-            drag_drop, language, token, roi_mask)
+game = Game(board_basics, token, roi_mask)
 
 video_capture_thread = Video_capture_thread()
 video_capture_thread.daemon = True
@@ -141,8 +106,6 @@ board_basics.initialize_ssim(previous_frame)
 game.initialize_hog(previous_frame)
 previous_frame_queue = deque(maxlen=10)
 previous_frame_queue.append(previous_frame)
-speech_thread.put_text(language.game_started)
-game.commentator.start()
 while not game.board.is_game_over():
     sys.stdout.flush()
     frame = video_capture_thread.get_frame()

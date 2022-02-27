@@ -8,7 +8,7 @@ import sys
 from tkinter import messagebox
 import tkinter as tk
 
-show_info = False
+show_info = True
 cap_index = 0
 cap_api = cv2.CAP_ANY
 platform_name = platform.system()
@@ -28,7 +28,9 @@ if show_info:
     root = tk.Tk()
     root.withdraw()
     messagebox.showinfo("Board Calibration",
-                        'Board calibration will start. It should detect corners of the chess board almost immediately. If it does not, you should press key "q" to stop board calibration and change webcam/board position.')
+        'Board calibration will start. It should detect corners of the chess' + 
+        'board almost immediately. If it does not, you should press key "q"' + 
+        'to stop board calibration and change webcam/board position.')
     if platform_name == "Darwin":
         root.destroy()
 
@@ -82,6 +84,7 @@ while True:
         continue
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     retval, corners = cv2.findChessboardCorners(gray, patternSize=board_dimensions)
+
     if retval:
         if show_info:
             if platform_name == "Darwin":
