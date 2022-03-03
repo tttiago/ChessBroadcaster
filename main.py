@@ -1,16 +1,16 @@
-import time
-import cv2
 import pickle
-import numpy as np
-import sys
-from collections import deque
 import platform
+import sys
+import time
+from collections import deque
 
-from game import Game
+import cv2
+import numpy as np
+
 from board_basics import Board_basics
+from game import Game
 from helper import perspective_transform
 from videocapture import Video_capture_thread
-
 
 cap_index = 0
 cap_api = cv2.CAP_ANY
@@ -26,7 +26,7 @@ for argument in sys.argv:
         else:
             cap_api = cv2.CAP_DSHOW
     elif argument.startswith("token="):
-        token = argument[len("token="):].strip()
+        token = argument[len("token=") :].strip()
 MOTION_START_THRESHOLD = 1.0
 HISTORY = 100
 MAX_MOVE_MEAN = 50
@@ -35,8 +35,8 @@ COUNTER_MAX_VALUE = 3
 move_fgbg = cv2.createBackgroundSubtractorKNN()
 motion_fgbg = cv2.createBackgroundSubtractorKNN(history=HISTORY)
 
-filename = 'constants.bin'
-infile = open(filename, 'rb')
+filename = "constants.bin"
+infile = open(filename, "rb")
 corners, side_view_compensation, rotation_count, roi_mask = pickle.load(infile)
 infile.close()
 board_basics = Board_basics(side_view_compensation, rotation_count)
@@ -49,8 +49,14 @@ video_capture_thread.daemon = True
 video_capture_thread.capture = cv2.VideoCapture(cap_index, cap_api)
 video_capture_thread.start()
 
-pts1 = np.float32([list(corners[0][0]), list(corners[8][0]), list(corners[0][8]),
-                   list(corners[8][8])])
+pts1 = np.float32(
+    [
+        list(corners[0][0]),
+        list(corners[8][0]),
+        list(corners[0][8]),
+        list(corners[8][8]),
+    ]
+)
 
 
 def waitUntilMotionCompletes():
@@ -131,7 +137,9 @@ while not game.board.is_game_over():
         last_frame = stabilize_background_subtractors()
         previous_frame = previous_frame_queue[0]
 
-        if (game.is_light_change(last_frame) == False) and game.register_move(fgmask, previous_frame, last_frame):
+        if (game.is_light_change(last_frame) == False) and game.register_move(
+            fgmask, previous_frame, last_frame
+        ):
             pass
             # cv2.imwrite(game.executed_moves[-1] + " frame.jpg", last_frame)
             # cv2.imwrite(game.executed_moves[-1] + " mask.jpg", fgmask)

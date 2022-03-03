@@ -1,5 +1,5 @@
-from skimage.metrics import structural_similarity
 import chess
+from skimage.metrics import structural_similarity
 
 
 class Board_basics:
@@ -11,8 +11,10 @@ class Board_basics:
         self.SSIM_THRESHOLD_LIGHT_BLACK = 1.0
         self.SSIM_THRESHOLD_DARK_WHITE = 1.0
         self.SSIM_THRESHOLD_DARK_BLACK = 1.0
-        self.ssim_table = [[self.SSIM_THRESHOLD_DARK_BLACK, self.SSIM_THRESHOLD_DARK_WHITE],
-                           [self.SSIM_THRESHOLD_LIGHT_BLACK, self.SSIM_THRESHOLD_LIGHT_WHITE]]
+        self.ssim_table = [
+            [self.SSIM_THRESHOLD_DARK_BLACK, self.SSIM_THRESHOLD_DARK_WHITE],
+            [self.SSIM_THRESHOLD_LIGHT_BLACK, self.SSIM_THRESHOLD_LIGHT_WHITE],
+        ]
 
     def initialize_ssim(self, frame):
         light_white = []
@@ -23,48 +25,85 @@ class Board_basics:
         dark_black = []
         for row in range(8):
             for column in range(8):
-                square_name = self.convert_row_column_to_square_name(row, column)
+                square_name = self.convert_row_column_to_square_name(
+                    row, column
+                )
                 if square_name[1] == "2":
                     if self.is_light(square_name):
-                        light_white.append(self.get_square_image(row, column, frame))
+                        light_white.append(
+                            self.get_square_image(row, column, frame)
+                        )
                     else:
-                        dark_white.append(self.get_square_image(row, column, frame))
+                        dark_white.append(
+                            self.get_square_image(row, column, frame)
+                        )
                 elif square_name[1] == "4":
                     if self.is_light(square_name):
-                        light_empty.append(self.get_square_image(row, column, frame))
+                        light_empty.append(
+                            self.get_square_image(row, column, frame)
+                        )
                     else:
-                        dark_empty.append(self.get_square_image(row, column, frame))
+                        dark_empty.append(
+                            self.get_square_image(row, column, frame)
+                        )
                 elif square_name[1] == "7":
                     if self.is_light(square_name):
-                        light_black.append(self.get_square_image(row, column, frame))
+                        light_black.append(
+                            self.get_square_image(row, column, frame)
+                        )
                     else:
-                        dark_black.append(self.get_square_image(row, column, frame))
-        ssim_light_white = max(structural_similarity(empty,
-                                                     piece, multichannel=True) for piece, empty in
-                               zip(light_white, light_empty))
-        ssim_light_black = max(structural_similarity(empty,
-                                                     piece, multichannel=True) for piece, empty in
-                               zip(light_black, light_empty))
-        ssim_dark_white = max(structural_similarity(empty,
-                                                    piece, multichannel=True) for piece, empty in
-                              zip(dark_white, dark_empty))
-        ssim_dark_black = max(structural_similarity(empty,
-                                                    piece, multichannel=True) for piece, empty in
-                              zip(dark_black, dark_empty))
-        self.SSIM_THRESHOLD_LIGHT_WHITE = min(self.SSIM_THRESHOLD_LIGHT_WHITE, ssim_light_white + 0.2)
-        self.SSIM_THRESHOLD_LIGHT_BLACK = min(self.SSIM_THRESHOLD_LIGHT_BLACK, ssim_light_black + 0.2)
-        self.SSIM_THRESHOLD_DARK_WHITE = min(self.SSIM_THRESHOLD_DARK_WHITE, ssim_dark_white + 0.2)
-        self.SSIM_THRESHOLD_DARK_BLACK = min(self.SSIM_THRESHOLD_DARK_BLACK, ssim_dark_black + 0.2)
+                        dark_black.append(
+                            self.get_square_image(row, column, frame)
+                        )
+        ssim_light_white = max(
+            structural_similarity(empty, piece, multichannel=True)
+            for piece, empty in zip(light_white, light_empty)
+        )
+        ssim_light_black = max(
+            structural_similarity(empty, piece, multichannel=True)
+            for piece, empty in zip(light_black, light_empty)
+        )
+        ssim_dark_white = max(
+            structural_similarity(empty, piece, multichannel=True)
+            for piece, empty in zip(dark_white, dark_empty)
+        )
+        ssim_dark_black = max(
+            structural_similarity(empty, piece, multichannel=True)
+            for piece, empty in zip(dark_black, dark_empty)
+        )
+        self.SSIM_THRESHOLD_LIGHT_WHITE = min(
+            self.SSIM_THRESHOLD_LIGHT_WHITE, ssim_light_white + 0.2
+        )
+        self.SSIM_THRESHOLD_LIGHT_BLACK = min(
+            self.SSIM_THRESHOLD_LIGHT_BLACK, ssim_light_black + 0.2
+        )
+        self.SSIM_THRESHOLD_DARK_WHITE = min(
+            self.SSIM_THRESHOLD_DARK_WHITE, ssim_dark_white + 0.2
+        )
+        self.SSIM_THRESHOLD_DARK_BLACK = min(
+            self.SSIM_THRESHOLD_DARK_BLACK, ssim_dark_black + 0.2
+        )
         self.SSIM_THRESHOLD = max(
-            [self.SSIM_THRESHOLD, self.SSIM_THRESHOLD_LIGHT_WHITE, self.SSIM_THRESHOLD_LIGHT_BLACK,
-             self.SSIM_THRESHOLD_DARK_WHITE, self.SSIM_THRESHOLD_DARK_BLACK])
-        print(self.SSIM_THRESHOLD_LIGHT_WHITE, self.SSIM_THRESHOLD_LIGHT_BLACK, self.SSIM_THRESHOLD_DARK_WHITE,
-              self.SSIM_THRESHOLD_DARK_BLACK)
-        self.ssim_table = [[self.SSIM_THRESHOLD_DARK_BLACK, self.SSIM_THRESHOLD_DARK_WHITE],
-                           [self.SSIM_THRESHOLD_LIGHT_BLACK, self.SSIM_THRESHOLD_LIGHT_WHITE]]
+            [
+                self.SSIM_THRESHOLD,
+                self.SSIM_THRESHOLD_LIGHT_WHITE,
+                self.SSIM_THRESHOLD_LIGHT_BLACK,
+                self.SSIM_THRESHOLD_DARK_WHITE,
+                self.SSIM_THRESHOLD_DARK_BLACK,
+            ]
+        )
+        print(
+            self.SSIM_THRESHOLD_LIGHT_WHITE,
+            self.SSIM_THRESHOLD_LIGHT_BLACK,
+            self.SSIM_THRESHOLD_DARK_WHITE,
+            self.SSIM_THRESHOLD_DARK_BLACK,
+        )
+        self.ssim_table = [
+            [self.SSIM_THRESHOLD_DARK_BLACK, self.SSIM_THRESHOLD_DARK_WHITE],
+            [self.SSIM_THRESHOLD_LIGHT_BLACK, self.SSIM_THRESHOLD_LIGHT_WHITE],
+        ]
 
-    def get_square_image(self, row, column,
-                         board_img):
+    def get_square_image(self, row, column, board_img):
         height, width = board_img.shape[:2]
         minX = int(column * width / 8)
         maxX = int((column + 1) * width / 8)
@@ -112,12 +151,30 @@ class Board_basics:
             else:
                 return False
 
-    def get_potential_moves(self, fgmask, previous_frame, next_frame, chessboard):
-        board = [[self.get_square_image(row, column, fgmask).mean() for column in range(8)] for row in range(8)]
-        previous_board = [[self.get_square_image(row, column, previous_frame) for column in range(8)] for row in
-                          range(8)]
-        next_board = [[self.get_square_image(row, column, next_frame) for column in range(8)] for row in
-                      range(8)]
+    def get_potential_moves(
+        self, fgmask, previous_frame, next_frame, chessboard
+    ):
+        board = [
+            [
+                self.get_square_image(row, column, fgmask).mean()
+                for column in range(8)
+            ]
+            for row in range(8)
+        ]
+        previous_board = [
+            [
+                self.get_square_image(row, column, previous_frame)
+                for column in range(8)
+            ]
+            for row in range(8)
+        ]
+        next_board = [
+            [
+                self.get_square_image(row, column, next_frame)
+                for column in range(8)
+            ]
+            for row in range(8)
+        ]
         potential_squares = []
         for row in range(8):
             for column in range(8):
@@ -125,9 +182,14 @@ class Board_basics:
                 if score < 10.0:
                     continue
 
-                ssim = structural_similarity(next_board[row][column],
-                                             previous_board[row][column], multichannel=True)
-                square_name = self.convert_row_column_to_square_name(row, column)
+                ssim = structural_similarity(
+                    next_board[row][column],
+                    previous_board[row][column],
+                    multichannel=True,
+                )
+                square_name = self.convert_row_column_to_square_name(
+                    row, column
+                )
                 print(ssim, square_name)
                 if ssim > self.SSIM_THRESHOLD:
                     continue
@@ -144,13 +206,23 @@ class Board_basics:
         potential_squares_castling = []
         for i in range(min(6, len(potential_squares))):
             score, row, column, ssim = potential_squares[i]
-            potential_square = (score, self.convert_row_column_to_square_name(row, column))
+            potential_square = (
+                score,
+                self.convert_row_column_to_square_name(row, column),
+            )
             potential_squares_castling.append(potential_square)
         potential_squares = potential_squares[:4]
         potential_moves = []
 
-        for start_square_score, start_row, start_column, start_ssim in potential_squares:
-            start_square_name = self.convert_row_column_to_square_name(start_row, start_column)
+        for (
+            start_square_score,
+            start_row,
+            start_column,
+            start_ssim,
+        ) in potential_squares:
+            start_square_name = self.convert_row_column_to_square_name(
+                start_row, start_column
+            )
             start_square = chess.parse_square(start_square_name)
             start_piece = chessboard.piece_at(start_square)
             if start_piece:
@@ -159,10 +231,17 @@ class Board_basics:
             else:
                 continue
             start_region = self.square_region(start_row, start_column)
-            for arrival_square_score, arrival_row, arrival_column, arrival_ssim in potential_squares:
+            for (
+                arrival_square_score,
+                arrival_row,
+                arrival_column,
+                arrival_ssim,
+            ) in potential_squares:
                 if (start_row, start_column) == (arrival_row, arrival_column):
                     continue
-                arrival_square_name = self.convert_row_column_to_square_name(arrival_row, arrival_column)
+                arrival_square_name = self.convert_row_column_to_square_name(
+                    arrival_row, arrival_column
+                )
                 arrival_square = chess.parse_square(arrival_square_name)
                 arrival_piece = chessboard.piece_at(arrival_square)
                 if arrival_piece:
@@ -173,12 +252,22 @@ class Board_basics:
                     color = int(start_piece.color)
                     if arrival_ssim > self.ssim_table[is_light][color]:
                         continue
-                arrival_region = self.square_region(arrival_row, arrival_column)
+                arrival_region = self.square_region(
+                    arrival_row, arrival_column
+                )
                 region = start_region.union(arrival_region)
-                total_square_score = sum(
-                    board[row][column] for row, column in region) + start_square_score + arrival_square_score
+                total_square_score = (
+                    sum(board[row][column] for row, column in region)
+                    + start_square_score
+                    + arrival_square_score
+                )
                 potential_moves.append(
-                    (total_square_score, start_square_name, arrival_square_name))
+                    (
+                        total_square_score,
+                        start_square_name,
+                        arrival_square_name,
+                    )
+                )
 
         potential_moves.sort(reverse=True)
 

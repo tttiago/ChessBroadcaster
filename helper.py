@@ -4,7 +4,9 @@ import numpy as np
 
 def perspective_transform(image, pts1):
     dimension = 480
-    pts2 = np.float32([[0, 0], [0, dimension], [dimension, 0], [dimension, dimension]])
+    pts2 = np.float32(
+        [[0, 0], [0, dimension], [dimension, 0], [dimension, dimension]]
+    )
     M = cv2.getPerspectiveTransform(pts1, pts2)
     dst = cv2.warpPerspective(image, M, (dimension, dimension))
     return dst
@@ -16,8 +18,12 @@ def rotateMatrix(matrix):
         for column in range(row, size - row - 1):
             temp = matrix[row][column]
             matrix[row][column] = matrix[column][size - 1 - row]
-            matrix[column][size - 1 - row] = matrix[size - 1 - row][size - 1 - column]
-            matrix[size - 1 - row][size - 1 - column] = matrix[size - 1 - column][row]
+            matrix[column][size - 1 - row] = matrix[size - 1 - row][
+                size - 1 - column
+            ]
+            matrix[size - 1 - row][size - 1 - column] = matrix[
+                size - 1 - column
+            ][row]
             matrix[size - 1 - column][row] = temp
 
 
@@ -46,8 +52,8 @@ def edge_detection(frame):
     edges = cv2.morphologyEx(edges, cv2.MORPH_CLOSE, kernel2)
     return edges
 
-def get_square_image(row, column,
-                     board_img):
+
+def get_square_image(row, column, board_img):
     height, width = board_img.shape[:2]
     minX = int(column * width / 8)
     maxX = int((column + 1) * width / 8)
@@ -61,13 +67,13 @@ def get_square_image(row, column,
 def contains_piece(square, view):
     height, width = square.shape[:2]
     if view == (0, -1):
-        half = square[:, width // 2:]
+        half = square[:, width // 2 :]
     elif view == (0, 1):
-        half = square[:, :width // 2]
+        half = square[:, : width // 2]
     elif view == (1, 0):
-        half = square[height // 2:, :]
+        half = square[height // 2 :, :]
     elif view == (-1, 0):
-        half = square[:height // 2, :]
+        half = square[: height // 2, :]
     if half.mean() < 1.0:
         return [False]
     elif square.mean() > 15.0:
@@ -84,9 +90,12 @@ def detect_state(frame, view, roi_mask):
     edges = edge_detection(frame)
     edges = cv2.bitwise_and(edges, roi_mask)
     # cv2.imwrite("edge.jpg", edges)
-    board_image = [[get_square_image(row, column, edges) for column in range(8)] for row
-                   in
-                   range(8)]
-    result = [[contains_piece(board_image[row][column], view) for column in range(8)] for row in
-              range(8)]
+    board_image = [
+        [get_square_image(row, column, edges) for column in range(8)]
+        for row in range(8)
+    ]
+    result = [
+        [contains_piece(board_image[row][column], view) for column in range(8)]
+        for row in range(8)
+    ]
     return result

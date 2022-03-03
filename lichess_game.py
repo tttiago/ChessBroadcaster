@@ -1,5 +1,7 @@
-import berserk
 import sys
+
+import berserk
+
 
 class Lichess_game:
     def __init__(self, token):
@@ -10,13 +12,15 @@ class Lichess_game:
             print("No games found. Please create your game on Lichess.")
             sys.exit(0)
         if len(games) > 1:
-            print("Multiple games found. Please make sure there is only one ongoing game on Lichess.")
+            print(
+                "Multiple games found. Please make sure there is only one ongoing game on Lichess."
+            )
             sys.exit(0)
         game = games[0]
-        self.we_play_white = game['color'] == 'white'
+        self.we_play_white = game["color"] == "white"
         self.is_our_turn = self.we_play_white
         self.client = client
-        self.game_id = game['gameId']
+        self.game_id = game["gameId"]
         self.token = token
 
     def move(self, move):
