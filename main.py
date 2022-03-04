@@ -4,17 +4,24 @@ import sys
 import time
 from collections import deque
 
+import chess.pgn
 import cv2
 import numpy as np
 
 from board_basics import Board_basics
-from game import Game
+from broadcast import Broadcast
 from helper import perspective_transform
 from videocapture import Video_capture_thread
 
 cap_index = 0
 cap_api = cv2.CAP_ANY
+
 token = "lip_v9e3Ie7aWgCmTaRoO9Q2"
+broadcast_id = broadcast_id = "r9K4Vjgf"
+with open("example_game.pgn") as f:
+    pgn = chess.pgn.read_game(f)
+pgn_games = [pgn]
+
 for argument in sys.argv:
     if argument.startswith("cap="):
         cap_index = int("".join(c for c in argument if c.isdigit()))
@@ -27,6 +34,7 @@ for argument in sys.argv:
             cap_api = cv2.CAP_DSHOW
     elif argument.startswith("token="):
         token = argument[len("token=") :].strip()
+
 MOTION_START_THRESHOLD = 1.0
 HISTORY = 100
 MAX_MOVE_MEAN = 50
@@ -42,7 +50,7 @@ infile.close()
 board_basics = Board_basics(side_view_compensation, rotation_count)
 
 
-game = Game(board_basics, token, roi_mask)
+broadcast = Broadcast(board_basics, token, broadcast_id, pgn_games, roi_mask)
 
 video_capture_thread = Video_capture_thread()
 video_capture_thread.daemon = True
@@ -109,10 +117,10 @@ def stabilize_background_subtractors():
 
 previous_frame = stabilize_background_subtractors()
 board_basics.initialize_ssim(previous_frame)
-game.initialize_hog(previous_frame)
+broadcast.initialize_hog(previous_frame)
 previous_frame_queue = deque(maxlen=10)
 previous_frame_queue.append(previous_frame)
-while not game.board.is_game_over():
+while not broadcast.board.is_game_over():
     sys.stdout.flush()
     frame = video_capture_thread.get_frame()
     frame = perspective_transform(frame, pts1)
@@ -137,9 +145,9 @@ while not game.board.is_game_over():
         last_frame = stabilize_background_subtractors()
         previous_frame = previous_frame_queue[0]
 
-        if (game.is_light_change(last_frame) == False) and game.register_move(
-            fgmask, previous_frame, last_frame
-        ):
+        if (
+            broadcast.is_light_change(last_frame) == False
+        ) and broadcast.register_move(fgmask, previous_frame, last_frame):
             pass
             # cv2.imwrite(game.executed_moves[-1] + " frame.jpg", last_frame)
             # cv2.imwrite(game.executed_moves[-1] + " mask.jpg", fgmask)

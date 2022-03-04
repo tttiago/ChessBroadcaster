@@ -3,13 +3,15 @@ import cv2
 import numpy as np
 
 from helper import detect_state, get_square_image
-from lichess_game import Lichess_game
+from lichess_broadcast import LichessBroadcast
 
 
 class Broadcast:
-    def __init__(self, board_basics, token, roi_mask):
+    def __init__(self, board_basics, token, broadcast_id, pgn_games, roi_mask):
         assert token
-        self.internet_game = Lichess_game(token)
+        self.internet_broadcast = LichessBroadcast(
+            token, broadcast_id, pgn_games
+        )
         self.board_basics = board_basics
         self.executed_moves = []
         self.played_moves = []
@@ -303,16 +305,11 @@ class Broadcast:
 
         print("Move has been registered")
 
-        if self.internet_game.is_our_turn:
-            self.internet_game.move(valid_move_UCI)
-            self.played_moves.append(valid_move_UCI)
-        else:
-            self.played_moves.append(valid_move_UCI)
+        self.internet_broadcast.move(valid_move_UCI)
+        self.played_moves.append(valid_move_UCI)
 
         self.executed_moves.append(self.board.san(valid_move_UCI))
         self.board.push(valid_move_UCI)
-
-        self.internet_game.is_our_turn = not self.internet_game.is_our_turn
 
         self.learn(next_frame)
         return True
