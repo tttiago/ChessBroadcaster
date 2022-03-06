@@ -38,8 +38,7 @@ class LichessBroadcast:
         )
 
     def move(self, move, game_id=0):
-        self.pgn_games[game_id].end().add_variation(move)
-
+        self.pgn_games[game_id] += move + " "
         try:
             self.client.broadcasts.push_pgn_update(
                 self.round_id, slug="round", pgn_games=self.pgn_list
@@ -56,19 +55,21 @@ class LichessBroadcast:
 
 
 if __name__ == "__main__":
-    token = "lip_v9e3Ie7aWgCmTaRoO9Q2"
+    import os
+
+    token = os.environ.get("LICHESS_TOKEN")
     broadcast_id = "r9K4Vjgf"
 
     with open("example_game.pgn") as f:
-        pgn = chess.pgn.read_game(f)
+        pgn = f.read()
     pgn_games = [pgn]
 
     broadcast = LichessBroadcast(token, broadcast_id, pgn_games)
 
     broadcast.round_setup()
 
-    broadcast.move(chess.Move.from_uci("e2e4"))
-    broadcast.move(chess.Move.from_uci("e7e5"))
-    broadcast.move(chess.Move.from_uci("g1f3"))
-    broadcast.move(chess.Move.from_uci("b8c6"))
-    broadcast.move(chess.Move.from_uci("f1b5"))
+    broadcast.move("e4")
+    broadcast.move("e5")
+    broadcast.move("Nf3")
+    broadcast.move("Nc6")
+    broadcast.move("Bb5")

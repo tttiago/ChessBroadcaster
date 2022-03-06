@@ -1,3 +1,4 @@
+import os
 import pickle
 import platform
 import sys
@@ -16,10 +17,13 @@ from videocapture import Video_capture_thread
 cap_index = 0
 cap_api = cv2.CAP_ANY
 
-token = "lip_v9e3Ie7aWgCmTaRoO9Q2"
+# Lichess Token and Broadcast ID
+token = os.environ.get("LICHESS_TOKEN")
 broadcast_id = broadcast_id = "r9K4Vjgf"
+
+# Simple PGN with the game metadata
 with open("example_game.pgn") as f:
-    pgn = chess.pgn.read_game(f)
+    pgn = f.read()
 pgn_games = [pgn]
 
 for argument in sys.argv:
@@ -149,9 +153,17 @@ while not broadcast.board.is_game_over():
             broadcast.is_light_change(last_frame) == False
         ) and broadcast.register_move(fgmask, previous_frame, last_frame):
             pass
-            # cv2.imwrite(game.executed_moves[-1] + " frame.jpg", last_frame)
-            # cv2.imwrite(game.executed_moves[-1] + " mask.jpg", fgmask)
-            # cv2.imwrite(game.executed_moves[-1] + " background.jpg", previous_frame)
+            cv2.imwrite(
+                "images/" + broadcast.executed_moves[-1] + " frame.jpg",
+                last_frame,
+            )
+            cv2.imwrite(
+                "images/" + broadcast.executed_moves[-1] + " mask.jpg", fgmask
+            )
+            cv2.imwrite(
+                "images/" + broadcast.executed_moves[-1] + " background.jpg",
+                previous_frame,
+            )
         else:
             pass
             # import uuid

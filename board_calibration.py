@@ -11,7 +11,7 @@ import numpy as np
 from helper import edge_detection, perspective_transform, rotateMatrix
 
 show_info = True
-cap_index = 0
+cap_index = 3  # 3 com a webcam do galitos; 0 com o telemovel
 cap_api = cv2.CAP_ANY
 platform_name = platform.system()
 for argument in sys.argv:

@@ -305,10 +305,10 @@ class Broadcast:
 
         print("Move has been registered")
 
-        self.internet_broadcast.move(valid_move_UCI)
         self.played_moves.append(valid_move_UCI)
-
         self.executed_moves.append(self.board.san(valid_move_UCI))
+
+        self.internet_broadcast.move(self.executed_moves[-1])
         self.board.push(valid_move_UCI)
 
         self.learn(next_frame)
