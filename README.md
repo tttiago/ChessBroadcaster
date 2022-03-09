@@ -1,4 +1,7 @@
 # Play online chess with real chess board
+
+## This is the README of the old project!!
+
 Program that enables you to play online chess using real chess board.  Using computer vision it will detect the moves you make on chess board. After that, if it's your turn to move in the online game, it will make the necessary clicks to make the move.
 
 ## Setup
