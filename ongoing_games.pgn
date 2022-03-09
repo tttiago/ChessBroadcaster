@@ -1,9 +1,19 @@
 [Event "Teste Galitos"]
 [Site "Galitos"]
-[Round "3"]
+[Round "5"]
 [White "Fred"]
 [Black "Tomé"]
-[Board "2"]
-[Date "2022.04.06"]
+[Board "1"]
+[Date "2022.03.09"]
 
-b4 c5 d4 a5 Nc3 Nc6 
+e4 e5 Nf3 Nc6 Bc4 Bc5 
+
+
+[Event "Teste Galitos"]
+[Site "Galitos"]
+[Round "5"]
+[White "Amarela, Torta"]
+[Black "Galitos, Galo"]
+[Board "2"]
+[Date "2022.03.09"]
+

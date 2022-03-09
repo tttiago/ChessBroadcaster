@@ -1,15 +1,14 @@
+import re
 import sys
 
 import berserk
-import chess
-import chess.pgn
 
 
 class LichessBroadcast:
     def __init__(self, token, broadcast_id, pgn_games):
         self.token = token
         self.broadcast_id = broadcast_id
-        self.pgn_games = pgn_games
+        self.pgn_games = [game + "\n\n" for game in pgn_games]
 
         session = berserk.TokenSession(self.token)
         self.client = berserk.Client(session)
@@ -37,10 +36,7 @@ class LichessBroadcast:
             self.round_id, slug="round", pgn_games=self.pgn_list
         )
 
-    def move(self, move, game_id=0):
-        self.pgn_games[game_id] += move + " "
-        with open("ongoing_games.pgn", "w") as f:
-            f.write("\n\n".join([pgn_game for pgn_game in self.pgn_games]))
+    def push_current_pgn(self):
         try:
             self.client.broadcasts.push_pgn_update(
                 self.round_id, slug="round", pgn_games=self.pgn_list
@@ -53,6 +49,11 @@ class LichessBroadcast:
             )
             print("Reconnected to Lichess.")
 
+    def move(self, move, game_id=0):
+        self.pgn_games[game_id] += move + " "
+        with open("ongoing_games.pgn", "w") as f:
+            f.write("\n\n\n".join([pgn_game for pgn_game in self.pgn_games]))
+        self.push_current_pgn()
         print("Done playing move " + str(move))
 
 
@@ -63,8 +64,8 @@ if __name__ == "__main__":
     broadcast_id = "r9K4Vjgf"
 
     with open("initial_game.pgn") as f:
-        pgn = f.read()
-    pgn_games = [pgn]
+        pgn = f.read().split("\n\n\n")
+    pgn_games = pgn
 
     broadcast = LichessBroadcast(token, broadcast_id, pgn_games)
 
@@ -75,3 +76,10 @@ if __name__ == "__main__":
     broadcast.move("Nf3")
     broadcast.move("Nc6")
     broadcast.move("Bb5")
+
+    input("Press Enter after updating PGN")
+    with open("ongoing_games.pgn") as f:
+        broadcast.pgn_games = f.read().split("\n\n\n")
+    broadcast.push_current_pgn()
+
+    broadcast.move("Bc5")

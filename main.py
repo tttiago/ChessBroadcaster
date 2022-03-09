@@ -5,8 +5,10 @@ import sys
 import time
 from collections import deque
 
+import chess
 import cv2
 import numpy as np
+from pynput import keyboard
 
 from board_basics import Board_basics
 from broadcast import Broadcast
@@ -20,10 +22,10 @@ cap_api = cv2.CAP_ANY
 token = os.environ.get("LICHESS_TOKEN")
 broadcast_id = broadcast_id = "r9K4Vjgf"
 
-# Simple PGN with the game metadata
+# Load the games metadata from a single PGN file.
 with open("initial_game.pgn") as f:
-    pgn = f.read()
-pgn_games = [pgn]
+    pgn = f.read().split("\n\n\n")
+pgn_games = pgn
 
 for argument in sys.argv:
     if argument.startswith("cap="):
@@ -59,6 +61,35 @@ video_capture_thread = Video_capture_thread()
 video_capture_thread.daemon = True
 video_capture_thread.capture = cv2.VideoCapture(cap_index, cap_api)
 video_capture_thread.start()
+
+# Keyboard Detection
+def on_press(key):
+    try:
+        if key.char == ("u"):
+            undo_moves()
+    except AttributeError:
+        pass
+
+
+#
+def undo_moves():
+    input("\nEdit ongoing_games.pgn and press enter to continue.")
+
+    with open("ongoing_games.pgn") as f:
+        broadcast.internet_broadcast.pgn_games = f.read().split("\n\n\n")
+    broadcast.internet_broadcast.push_current_pgn()
+    print("Done updating broadcast.")
+
+    # This should be turned in a method of Broadcast.
+    # Should be updated to create a board for each pgn game.
+    broadcast.board = chess.pgn.read_game(
+        broadcast.internet_broadcast.pgn_games[0]
+    ).board()
+
+
+listener = keyboard.Listener(on_press=on_press)
+listener.start()
+
 
 pts1 = np.float32(
     [
@@ -124,6 +155,11 @@ broadcast.initialize_hog(previous_frame)
 previous_frame_queue = deque(maxlen=10)
 previous_frame_queue.append(previous_frame)
 while not broadcast.board.is_game_over():
+
+    # Allow to undo moves.
+    # if keyboard.is_pressed("U"):
+    #     input("Edit PGN and press Enter to continue:")
+
     sys.stdout.flush()
     frame = video_capture_thread.get_frame()
     frame = perspective_transform(frame, pts1)
