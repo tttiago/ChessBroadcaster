@@ -129,6 +129,7 @@ class Broadcast:
                 if (move.from_square in potential_squares) and (
                     move.to_square in potential_squares
                 ):
+                    # Currently only allows to promote to queen.
                     if move.promotion and move.promotion != chess.QUEEN:
                         continue
                     self.board.push(move)
@@ -284,17 +285,17 @@ class Broadcast:
         success, valid_move_string = self.get_valid_move(
             potential_squares, potential_moves
         )
-        print("Valid move string:" + valid_move_string)
+        print("Valid move string: " + valid_move_string)
         if not success:
             success, valid_move_string = self.get_valid_move_canny(
                 fgmask, next_frame
             )
-            print("Valid move string 2:" + valid_move_string)
+            print("Valid move string 2: " + valid_move_string)
             if not success:
                 success, valid_move_string = self.get_valid_move_hog(
                     fgmask, next_frame
                 )
-                print("Valid move string 3:" + valid_move_string)
+                print("Valid move string 3: " + valid_move_string)
             if success:
                 pass
             else:

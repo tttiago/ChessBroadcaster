@@ -5,7 +5,6 @@ import sys
 import time
 from collections import deque
 
-import chess.pgn
 import cv2
 import numpy as np
 
@@ -149,29 +148,35 @@ while not broadcast.board.is_game_over():
         last_frame = stabilize_background_subtractors()
         previous_frame = previous_frame_queue[0]
 
-        if (
-            broadcast.is_light_change(last_frame) == False
-        ) and broadcast.register_move(fgmask, previous_frame, last_frame):
-            pass
-            cv2.imwrite(
-                "images/" + broadcast.executed_moves[-1] + " frame.jpg",
-                last_frame,
-            )
-            cv2.imwrite(
-                "images/" + broadcast.executed_moves[-1] + " mask.jpg", fgmask
-            )
-            cv2.imwrite(
-                "images/" + broadcast.executed_moves[-1] + " background.jpg",
-                previous_frame,
-            )
-        else:
-            pass
-            # import uuid
-            # id = str(uuid.uuid1())
-            # cv2.imwrite(id+"frame_fail.jpg", last_frame)
-            # cv2.imwrite(id+"mask_fail.jpg", fgmask)
-            # cv2.imwrite(id+"background_fail.jpg", previous_frame)
-        previous_frame_queue = deque(maxlen=10)
+        if not broadcast.is_light_change(last_frame):
+            for i in range(2):
+                print(i)
+                if not broadcast.register_move(
+                    fgmask, previous_frame, last_frame
+                ):
+                    continue
+                    # pass
+                    # import uuid
+                    # id = str(uuid.uuid1())
+                    # cv2.imwrite(id+"frame_fail.jpg", last_frame)
+                    # cv2.imwrite(id+"mask_fail.jpg", fgmask)
+                    # cv2.imwrite(id+"background_fail.jpg", previous_frame)
+                cv2.imwrite(
+                    "images/" + broadcast.executed_moves[-1] + " frame.jpg",
+                    last_frame,
+                )
+                cv2.imwrite(
+                    "images/" + broadcast.executed_moves[-1] + " mask.jpg",
+                    fgmask,
+                )
+                cv2.imwrite(
+                    "images/"
+                    + broadcast.executed_moves[-1]
+                    + " background.jpg",
+                    previous_frame,
+                )
+
+        previous_frame_queue = deque(maxlen=75)  # maxlen = 10
         previous_frame_queue.append(last_frame)
     else:
         move_fgbg.apply(frame)

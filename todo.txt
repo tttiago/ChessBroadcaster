@@ -1,0 +1,5 @@
+TO DO
+
+escrever pgn no ficheiro
+voltar atrás
+promocoes

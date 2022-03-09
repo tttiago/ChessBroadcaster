@@ -10,8 +10,10 @@ import numpy as np
 
 from helper import edge_detection, perspective_transform, rotateMatrix
 
+DEBUG = False
+
 show_info = True
-cap_index = 3  # 3 com a webcam do galitos; 0 com o telemovel
+cap_index = 0  # 3 com a webcam do galitos; 0 com o telemovel
 cap_api = cv2.CAP_ANY
 platform_name = platform.system()
 for argument in sys.argv:
@@ -195,22 +197,25 @@ while True:
 
         empty_board = perspective_transform(frame, pts1)
         edges = edge_detection(empty_board)
-        # cv2.imshow("edge", edges)
-        # cv2.waitKey(0)
+        if DEBUG:
+            cv2.imshow("edge", edges)
+            cv2.waitKey(0)
         kernel = np.ones((7, 7), np.uint8)
         edges = cv2.dilate(edges, kernel, iterations=1)
         roi_mask = cv2.bitwise_not(edges)
-        # cv2.imshow("edge", edges)
-        # cv2.waitKey(0)
-        # cv2.imshow("roi", roi_mask)
-        # cv2.waitKey(0)
-        roi_mask[:7, :] = 0
+        if DEBUG:
+            cv2.imshow("edge2", edges)
+            cv2.waitKey(0)
+            cv2.imshow("roi", roi_mask)
+            cv2.waitKey(0)
+            roi_mask[:7, :] = 0
         roi_mask[:, :7] = 0
         roi_mask[-7:, :] = 0
         roi_mask[:, -7:] = 0
-        # cv2.imshow("roi", roi_mask)
-        # cv2.waitKey(0)
-        # cv2.imwrite("empty_board.jpg", empty_board)
+        if DEBUG:
+            cv2.imshow("roi2", roi_mask)
+            cv2.waitKey(0)
+            cv2.imwrite("images/empty_board.jpg", empty_board)
 
         rotation_count = 0
         while True:
