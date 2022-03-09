@@ -21,7 +21,7 @@ token = os.environ.get("LICHESS_TOKEN")
 broadcast_id = broadcast_id = "r9K4Vjgf"
 
 # Simple PGN with the game metadata
-with open("example_game.pgn") as f:
+with open("initial_game.pgn") as f:
     pgn = f.read()
 pgn_games = [pgn]
 

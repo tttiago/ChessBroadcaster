@@ -39,6 +39,8 @@ class LichessBroadcast:
 
     def move(self, move, game_id=0):
         self.pgn_games[game_id] += move + " "
+        with open("ongoing_games.pgn", "w") as f:
+            f.write("\n\n".join([pgn_game for pgn_game in self.pgn_games]))
         try:
             self.client.broadcasts.push_pgn_update(
                 self.round_id, slug="round", pgn_games=self.pgn_list
@@ -60,7 +62,7 @@ if __name__ == "__main__":
     token = os.environ.get("LICHESS_TOKEN")
     broadcast_id = "r9K4Vjgf"
 
-    with open("example_game.pgn") as f:
+    with open("initial_game.pgn") as f:
         pgn = f.read()
     pgn_games = [pgn]
 
