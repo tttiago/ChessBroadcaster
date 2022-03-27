@@ -7,6 +7,7 @@ import time
 from collections import deque
 
 import chess
+import chess.pgn
 import cv2
 import numpy as np
 from pynput import keyboard
@@ -85,17 +86,19 @@ def undo_moves():
         broadcast.internet_broadcast.pgn_games = f.read().split("\n\n\n")
 
     broadcast.internet_broadcast.push_current_pgn()
-    print("Done updating broadcast.\n\n")
+    print("Done updating broadcast.")
     # sys.stdout.flush()
 
     # This should be turned in a method of Broadcast.
     # Should be updated to create a board for each pgn game.
-    print(broadcast.internet_broadcast.pgn_games[0].split("\n")[-1])
-
-    broadcast.board = chess.pgn.read_game(
+    game = chess.pgn.read_game(
         io.StringIO(broadcast.internet_broadcast.pgn_games[0].split("\n")[-1])
-    ).board()
-    print(broadcast.board)
+    )
+    broadcast.board = game.board()
+    for move in game.mainline_moves():
+        broadcast.board.push(move)
+
+    print("Done updating board.\n")
 
 
 listener = keyboard.Listener(on_press=on_press)
