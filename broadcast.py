@@ -273,8 +273,6 @@ class Broadcast:
 
         valid_move_UCI = chess.Move.from_uci(valid_move_string)
 
-        print("Move has been registered")
-
         self.played_moves.append(valid_move_UCI)
         self.executed_moves.append(self.board.san(valid_move_UCI))
 
@@ -330,8 +328,8 @@ class Broadcast:
 
         self.features = self.features[:100]
         self.labels = self.labels[:100]
-        print(self.features.shape)
-        print(self.labels.shape)
+        # print(self.features.shape)
+        # print(self.labels.shape)
         self.knn = cv2.ml.KNearest_create()
         self.knn.train(self.features, cv2.ml.ROW_SAMPLE, self.labels)
 
@@ -403,6 +401,16 @@ class Broadcast:
             and (chess.Move.from_uci("e8c8") in self.board.legal_moves)
         ):
             valid_move_string = "e8c8"
+
+        if not valid_move_string and len(potential_squares) == 2:
+            for move in (
+                potential_squares[0] + potential_squares[1],
+                potential_squares[1] + potential_squares[0],
+            ):
+                if chess.Move.from_uci(move) in self.board.legal_moves:
+                    valid_move_string = move
+                    print("Magical function worked!")
+                    break
 
         if valid_move_string:
             print("ssim!")

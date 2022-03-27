@@ -1,3 +1,4 @@
+import io
 import os
 import pickle
 import platform
@@ -10,10 +11,12 @@ import cv2
 import numpy as np
 from pynput import keyboard
 
-from board_basics import Board_basics
+from board_basics import BoardBasics
 from broadcast import Broadcast
 from helper import perspective_transform
 from videocapture import Video_capture_thread
+
+DEBUG = True
 
 # cap_index = 0
 # cap_api = cv2.CAP_ANY
@@ -56,7 +59,7 @@ filename = "constants.bin"
 infile = open(filename, "rb")
 corners, side_view_compensation, rotation_count, roi_mask = pickle.load(infile)
 infile.close()
-board_basics = Board_basics(side_view_compensation, rotation_count)
+board_basics = BoardBasics(side_view_compensation, rotation_count)
 
 
 broadcast = Broadcast(board_basics, token, broadcast_id, pgn_games, roi_mask)
@@ -75,24 +78,24 @@ def on_press(key):
         pass
 
 
-# finish testing
 def undo_moves():
-    input("\nEdit ongoing_games.pgn and press enter to continue.")
+    input("\nEdit ongoing_games.pgn and press enter to continue.\b ")
 
     with open("ongoing_games.pgn") as f:
         broadcast.internet_broadcast.pgn_games = f.read().split("\n\n\n")
 
-    # finish testing
-    print(broadcast.internet.broadcast.pgn_games[0])
     broadcast.internet_broadcast.push_current_pgn()
     print("Done updating broadcast.\n\n")
-    sys.stdout.flush()
+    # sys.stdout.flush()
 
     # This should be turned in a method of Broadcast.
     # Should be updated to create a board for each pgn game.
+    print(broadcast.internet_broadcast.pgn_games[0].split("\n")[-1])
+
     broadcast.board = chess.pgn.read_game(
-        broadcast.internet_broadcast.pgn_games[0]
+        io.StringIO(broadcast.internet_broadcast.pgn_games[0].split("\n")[-1])
     ).board()
+    print(broadcast.board)
 
 
 listener = keyboard.Listener(on_press=on_press)
@@ -190,7 +193,6 @@ while not broadcast.board.is_game_over():
 
         if not broadcast.is_light_change(last_frame):
             for i in range(2):
-                print(i)
                 if not broadcast.register_move(
                     fgmask, previous_frame, last_frame
                 ):
@@ -201,20 +203,23 @@ while not broadcast.board.is_game_over():
                     # cv2.imwrite(id+"frame_fail.jpg", last_frame)
                     # cv2.imwrite(id+"mask_fail.jpg", fgmask)
                     # cv2.imwrite(id+"background_fail.jpg", previous_frame)
-                cv2.imwrite(
-                    "images/" + broadcast.executed_moves[-1] + " frame.jpg",
-                    last_frame,
-                )
-                cv2.imwrite(
-                    "images/" + broadcast.executed_moves[-1] + " mask.jpg",
-                    fgmask,
-                )
-                cv2.imwrite(
-                    "images/"
-                    + broadcast.executed_moves[-1]
-                    + " background.jpg",
-                    previous_frame,
-                )
+                if DEBUG:
+                    cv2.imwrite(
+                        "images/"
+                        + broadcast.executed_moves[-1]
+                        + " frame.jpg",
+                        last_frame,
+                    )
+                    cv2.imwrite(
+                        "images/" + broadcast.executed_moves[-1] + " mask.jpg",
+                        fgmask,
+                    )
+                    cv2.imwrite(
+                        "images/"
+                        + broadcast.executed_moves[-1]
+                        + " background.jpg",
+                        previous_frame,
+                    )
 
         previous_frame_queue = deque(maxlen=75)  # maxlen = 10
         previous_frame_queue.append(last_frame)

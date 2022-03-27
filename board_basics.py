@@ -2,7 +2,7 @@ import chess
 from skimage.metrics import structural_similarity
 
 
-class Board_basics:
+class BoardBasics:
     def __init__(self, side_view_compensation, rotation_count):
         self.d = [side_view_compensation, (0, 0)]
         self.rotation_count = rotation_count
