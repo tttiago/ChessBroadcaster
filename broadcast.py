@@ -108,48 +108,31 @@ class Broadcast:
                 potential_squares.append(square)
                 square_scores[square] = score
 
-        move_to_register = self.get_move_to_register()
         potential_moves = []
 
         board_result = self.detect_state_hog(frame)
-        if move_to_register:
-            if (move_to_register.from_square in potential_squares) and (
-                move_to_register.to_square in potential_squares
+        for move in self.board.legal_moves:
+            if (move.from_square in potential_squares) and (
+                move.to_square in potential_squares
             ):
-                self.board.push(move_to_register)
+                # Currently only allows to promote to queen.
+                if move.promotion and move.promotion != chess.QUEEN:
+                    continue
+                self.board.push(move)
                 if self.check_state_hog(board_result):
-                    print("Hog!")
                     self.board.pop()
-                    return True, move_to_register.uci()
+                    total_score = (
+                        square_scores[move.from_square]
+                        + square_scores[move.to_square]
+                    )
+                    potential_moves.append((total_score, move.uci()))
                 else:
                     self.board.pop()
-                    return False, ""
-        else:
-            for move in self.board.legal_moves:
-                if (move.from_square in potential_squares) and (
-                    move.to_square in potential_squares
-                ):
-                    # Currently only allows to promote to queen.
-                    if move.promotion and move.promotion != chess.QUEEN:
-                        continue
-                    self.board.push(move)
-                    if self.check_state_hog(board_result):
-                        self.board.pop()
-                        total_score = (
-                            square_scores[move.from_square]
-                            + square_scores[move.to_square]
-                        )
-                        potential_moves.append((total_score, move.uci()))
-                    else:
-                        self.board.pop()
         if potential_moves:
             print("Hog!")
             return True, max(potential_moves)[1]
         else:
             return False, ""
-
-    def get_move_to_register(self):
-        return None
 
     def is_light_change(self, frame):
         result = detect_state(frame, self.board_basics.d[0], self.roi_mask)
@@ -234,41 +217,27 @@ class Broadcast:
                 potential_squares.append(square)
                 square_scores[square] = score
 
-        move_to_register = self.get_move_to_register()
         potential_moves = []
 
         board_result = detect_state(
             frame, self.board_basics.d[0], self.roi_mask
         )
-        if move_to_register:
-            if (move_to_register.from_square in potential_squares) and (
-                move_to_register.to_square in potential_squares
+        for move in self.board.legal_moves:
+            if (move.from_square in potential_squares) and (
+                move.to_square in potential_squares
             ):
-                self.board.push(move_to_register)
+                if move.promotion and move.promotion != chess.QUEEN:
+                    continue
+                self.board.push(move)
                 if self.check_state_for_move(board_result):
-                    print("Canny!")
                     self.board.pop()
-                    return True, move_to_register.uci()
+                    total_score = (
+                        square_scores[move.from_square]
+                        + square_scores[move.to_square]
+                    )
+                    potential_moves.append((total_score, move.uci()))
                 else:
                     self.board.pop()
-                    return False, ""
-        else:
-            for move in self.board.legal_moves:
-                if (move.from_square in potential_squares) and (
-                    move.to_square in potential_squares
-                ):
-                    if move.promotion and move.promotion != chess.QUEEN:
-                        continue
-                    self.board.push(move)
-                    if self.check_state_for_move(board_result):
-                        self.board.pop()
-                        total_score = (
-                            square_scores[move.from_square]
-                            + square_scores[move.to_square]
-                        )
-                        potential_moves.append((total_score, move.uci()))
-                    else:
-                        self.board.pop()
         if potential_moves:
             print("Canny!")
             return True, max(potential_moves)[1]
@@ -372,18 +341,10 @@ class Broadcast:
         print("Potential moves")
         print(potential_moves)
 
-        move_to_register = self.get_move_to_register()
-
         valid_move_string = ""
         for score, start, arrival in potential_moves:
             if valid_move_string:
                 break
-
-            if move_to_register:
-                if chess.square_name(move_to_register.from_square) != start:
-                    continue
-                if chess.square_name(move_to_register.to_square) != arrival:
-                    continue
 
             uci_move = start + arrival
             try:
@@ -395,10 +356,7 @@ class Broadcast:
             if move in self.board.legal_moves:
                 valid_move_string = uci_move
             else:
-                if move_to_register:
-                    uci_move_promoted = move_to_register.uci()
-                else:
-                    uci_move_promoted = uci_move + "q"
+                uci_move_promoted = uci_move + "q"
                 promoted_move = chess.Move.from_uci(uci_move_promoted)
                 if promoted_move in self.board.legal_moves:
                     valid_move_string = uci_move_promoted
@@ -445,9 +403,6 @@ class Broadcast:
             and (chess.Move.from_uci("e8c8") in self.board.legal_moves)
         ):
             valid_move_string = "e8c8"
-
-        if move_to_register and (move_to_register.uci() != valid_move_string):
-            return False, valid_move_string
 
         if valid_move_string:
             print("ssim!")

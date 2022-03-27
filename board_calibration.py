@@ -88,7 +88,13 @@ def mark_corners(frame, augmented_corners, rotation_count):
     return frame
 
 
-cap = cv2.VideoCapture(cap_index, cap_api)
+# cap = cv2.VideoCapture(cap_index, cap_api)
+
+RTSP_URL = "rtsp://camera1:camera1@192.168.0.122:554/stream1"
+cap_api = cv2.CAP_FFMPEG
+cap = cv2.VideoCapture(RTSP_URL, cap_api)
+
+
 if not cap.isOpened():
     print("Couldn't open your webcam. Please check your webcam connection.")
     sys.exit(0)
@@ -228,6 +234,12 @@ while True:
                 rotation_count += 1
                 rotation_count %= 4
             elif response & 0xFF == ord("q"):
+                cv2.imwrite(
+                    "images/calibrated_board.jpg",
+                    mark_corners(
+                        frame.copy(), augmented_corners, rotation_count
+                    ),
+                )
                 break
         break
 

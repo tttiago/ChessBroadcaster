@@ -15,8 +15,12 @@ from broadcast import Broadcast
 from helper import perspective_transform
 from videocapture import Video_capture_thread
 
-cap_index = 0
-cap_api = cv2.CAP_ANY
+# cap_index = 0
+# cap_api = cv2.CAP_ANY
+
+RTSP_URL = "rtsp://camera1:camera1@192.168.0.122:554/stream1"
+cap_api = cv2.CAP_FFMPEG
+cap_index = RTSP_URL
 
 # Lichess Token and Broadcast ID
 token = os.environ.get("LICHESS_TOKEN")
@@ -71,14 +75,18 @@ def on_press(key):
         pass
 
 
-#
+# finish testing
 def undo_moves():
     input("\nEdit ongoing_games.pgn and press enter to continue.")
 
     with open("ongoing_games.pgn") as f:
         broadcast.internet_broadcast.pgn_games = f.read().split("\n\n\n")
+
+    # finish testing
+    print(broadcast.internet.broadcast.pgn_games[0])
     broadcast.internet_broadcast.push_current_pgn()
-    print("Done updating broadcast.")
+    print("Done updating broadcast.\n\n")
+    sys.stdout.flush()
 
     # This should be turned in a method of Broadcast.
     # Should be updated to create a board for each pgn game.
@@ -155,10 +163,6 @@ broadcast.initialize_hog(previous_frame)
 previous_frame_queue = deque(maxlen=10)
 previous_frame_queue.append(previous_frame)
 while not broadcast.board.is_game_over():
-
-    # Allow to undo moves.
-    # if keyboard.is_pressed("U"):
-    #     input("Edit PGN and press Enter to continue:")
 
     sys.stdout.flush()
     frame = video_capture_thread.get_frame()
