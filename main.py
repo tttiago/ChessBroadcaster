@@ -1,7 +1,6 @@
 import io
 import os
 import pickle
-import platform
 import sys
 import time
 from collections import deque
@@ -15,16 +14,25 @@ from pynput import keyboard
 from board_basics import BoardBasics
 from broadcast import Broadcast
 from helper import perspective_transform
+from parser_helper import CameraInfo, create_parser
 from videocapture import Video_capture_thread
 
 DEBUG = True
 
+parser = create_parser()
+args = parser.parse_args()
+
+camera_info = CameraInfo()
+cam_id = args.camera_index
+cam_ip = camera_info.IPs[cam_id - 1]
+stream = args.stream
+RTSP_URL = f"rtsp://camera{cam_id}:admin123@{cam_ip}:554/stream{stream}"
+cap_api = cv2.CAP_FFMPEG
+cap_index = RTSP_URL
 # cap_index = 0
 # cap_api = cv2.CAP_ANY
 
-RTSP_URL = "rtsp://camera1:camera1@192.168.0.122:554/stream1"
-cap_api = cv2.CAP_FFMPEG
-cap_index = RTSP_URL
+game_id = args.game_id
 
 # Lichess Token and Broadcast ID
 token = os.environ.get("LICHESS_TOKEN")
@@ -32,21 +40,8 @@ broadcast_id = broadcast_id = "r9K4Vjgf"
 
 # Load the games metadata from a single PGN file.
 with open("initial_game.pgn") as f:
-    pgn = f.read().split("\n\n\n")
-pgn_games = pgn
+    pgn_games = f.read().split("\n\n\n")
 
-for argument in sys.argv:
-    if argument.startswith("cap="):
-        cap_index = int("".join(c for c in argument if c.isdigit()))
-        platform_name = platform.system()
-        if platform_name == "Darwin":
-            cap_api = cv2.CAP_AVFOUNDATION
-        elif platform_name == "Linux":
-            cap_api = cv2.CAP_V4L2
-        else:
-            cap_api = cv2.CAP_DSHOW
-    elif argument.startswith("token="):
-        token = argument[len("token=") :].strip()
 
 MOTION_START_THRESHOLD = 1.0
 HISTORY = 100
@@ -56,14 +51,16 @@ COUNTER_MAX_VALUE = 3
 move_fgbg = cv2.createBackgroundSubtractorKNN()
 motion_fgbg = cv2.createBackgroundSubtractorKNN(history=HISTORY)
 
-filename = "constants.bin"
+filename = f"./constants/constants{cam_id}.bin"
 infile = open(filename, "rb")
 corners, side_view_compensation, rotation_count, roi_mask = pickle.load(infile)
 infile.close()
 board_basics = BoardBasics(side_view_compensation, rotation_count)
 
 
-broadcast = Broadcast(board_basics, token, broadcast_id, pgn_games, roi_mask)
+broadcast = Broadcast(
+    board_basics, token, broadcast_id, pgn_games, roi_mask, game_id
+)
 
 video_capture_thread = Video_capture_thread()
 video_capture_thread.daemon = True
@@ -83,7 +80,7 @@ def undo_moves():
     input("\nEdit ongoing_games.pgn and press enter to continue.\b ")
 
     with open("ongoing_games.pgn") as f:
-        broadcast.internet_broadcast.pgn_games = f.read().split("\n\n\n")
+        broadcast.internet_broadcast.pgn_game = f.read().split("\n\n\n")
 
     broadcast.internet_broadcast.push_current_pgn()
     print("Done updating broadcast.")
@@ -92,7 +89,9 @@ def undo_moves():
     # This should be turned in a method of Broadcast.
     # Should be updated to create a board for each pgn game.
     game = chess.pgn.read_game(
-        io.StringIO(broadcast.internet_broadcast.pgn_games[0].split("\n")[-1])
+        io.StringIO(
+            broadcast.internet_broadcast.pgn_game[game_id].split("\n")[-1]
+        )
     )
     broadcast.board = game.board()
     for move in game.mainline_moves():

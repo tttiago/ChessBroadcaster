@@ -1,5 +1,4 @@
 import pickle
-import platform
 import sys
 import tkinter as tk
 from math import inf, sqrt
@@ -9,36 +8,24 @@ import cv2
 import numpy as np
 
 from helper import edge_detection, perspective_transform, rotateMatrix
+from parser_helper import CameraInfo, create_parser
 
 DEBUG = False
+SHOW_INFO = True
 
-show_info = True
-cap_index = 0  # 3 com a webcam do galitos; 0 com o telemovel
-cap_api = cv2.CAP_ANY
-platform_name = platform.system()
-for argument in sys.argv:
-    if argument == "show-info":
-        show_info = True
-    elif argument.startswith("cap="):
-        cap_index = int("".join(c for c in argument if c.isdigit()))
-        if platform_name == "Darwin":
-            cap_api = cv2.CAP_AVFOUNDATION
-        elif platform_name == "Linux":
-            cap_api = cv2.CAP_V4L2
-        else:
-            cap_api = cv2.CAP_DSHOW
 
-if show_info:
-    root = tk.Tk()
-    root.withdraw()
-    messagebox.showinfo(
-        "Board Calibration",
-        "Board calibration will start. It should detect corners of the chess"
-        + 'board almost immediately. If it does not, you should press key "q"'
-        + "to stop board calibration and change webcam/board position.",
-    )
-    if platform_name == "Darwin":
-        root.destroy()
+parser = create_parser()
+args = parser.parse_args()
+
+camera_info = CameraInfo()
+cam_id = args.camera_index
+cam_ip = camera_info.IPs[cam_id - 1]
+stream = args.stream
+RTSP_URL = f"rtsp://camera{cam_id}:admin123@{cam_ip}:554/stream{stream}"
+cap_api = cv2.CAP_FFMPEG
+
+# cap_index = 0  # 3 com a webcam do galitos; 0 com o telemovel
+# cap_api = cv2.CAP_ANY
 
 
 def mark_corners(frame, augmented_corners, rotation_count):
@@ -88,12 +75,18 @@ def mark_corners(frame, augmented_corners, rotation_count):
     return frame
 
 
-# cap = cv2.VideoCapture(cap_index, cap_api)
+if SHOW_INFO:
+    root = tk.Tk()
+    root.withdraw()
+    messagebox.showinfo(
+        "Board Calibration",
+        "Board calibration will start. It should detect corners of the chess"
+        + 'board almost immediately. If it does not, you should press key "q"'
+        + "to stop board calibration and change webcam/board position.",
+    )
 
-RTSP_URL = "rtsp://camera1:camera1@192.168.0.122:554/stream1"
-cap_api = cv2.CAP_FFMPEG
 cap = cv2.VideoCapture(RTSP_URL, cap_api)
-
+# cap = cv2.VideoCapture(cap_index, cap_api)
 
 if not cap.isOpened():
     print("Couldn't open your webcam. Please check your webcam connection.")
@@ -117,13 +110,14 @@ while True:
     )
 
     if retval:
-        if show_info:
-            if platform_name == "Darwin":
-                root = tk.Tk()
-                root.withdraw()
+        if SHOW_INFO:
             messagebox.showinfo(
                 "Chess Board Detected",
-                'Please check that corners of your chess board are correctly detected. The square covered by points (0,0), (0,1),(1,0) and (1,1) should be a8. You can rotate the image by pressing key "r" to adjust that. Press key "q" to save detected chess board corners and finish board calibration.',
+                "Please check that corners of your chess board are correctly"
+                + " detected. The square covered by points (0,0), (0,1),(1,0) "
+                + "and (1,1) should be a8. You can rotate the image by "
+                + 'pressing key "r" to adjust that. Press key "q" to save '
+                + "detected chess board corners and finish board calibration.",
             )
             root.destroy()
         if (
@@ -279,7 +273,7 @@ else:
 
 print("Side view compensation" + str(side_view_compensation))
 print("Rotation count " + str(rotation_count))
-filename = "constants.bin"
+filename = f"./constants/constants{cam_id}.bin"
 outfile = open(filename, "wb")
 pickle.dump(
     [augmented_corners, side_view_compensation, rotation_count, roi_mask],
