@@ -7,7 +7,7 @@ def create_parser():
         description="Calibrate camera using empty board."
     )
     parser.add_argument(
-        "-ci",
+        "-c",
         "--camera-index",
         metavar="CI",
         type=int,
@@ -16,7 +16,7 @@ def create_parser():
         help="Index of the camera to be used (starts at 1).",
     )
     parser.add_argument(
-        "-gi",
+        "-g",
         "--game-id",
         metavar="GI",
         type=int,

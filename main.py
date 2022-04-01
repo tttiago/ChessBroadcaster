@@ -77,21 +77,16 @@ def on_press(key):
 
 
 def undo_moves():
-    input("\nEdit ongoing_games.pgn and press enter to continue.\b ")
-
-    with open("ongoing_games.pgn") as f:
-        broadcast.internet_broadcast.pgn_game = f.read().split("\n\n\n")
+    input(
+        "Edit the game you want and press the number corresponding to the game."
+    )
+    with open(f"./ongoing_games/game{game_id}.pgn") as f:
+        broadcast.internet_broadcast.pgn_game = f.read()
 
     broadcast.internet_broadcast.push_current_pgn()
     print("Done updating broadcast.")
-    # sys.stdout.flush()
-
-    # This should be turned in a method of Broadcast.
-    # Should be updated to create a board for each pgn game.
     game = chess.pgn.read_game(
-        io.StringIO(
-            broadcast.internet_broadcast.pgn_game[game_id].split("\n")[-1]
-        )
+        io.StringIO(broadcast.internet_broadcast.pgn_game.split("\n")[-1])
     )
     broadcast.board = game.board()
     for move in game.mainline_moves():

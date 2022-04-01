@@ -1,4 +1,3 @@
-import re
 import sys
 
 import berserk
@@ -9,7 +8,8 @@ class LichessBroadcast:
         self.token = token
         self.broadcast_id = broadcast_id
         self.game_id = game_id
-        self.pgn_game = pgn_games[game_id]
+        self.all_games = pgn_games
+        self.pgn_game = pgn_games[game_id] + "\n\n"
 
         session = berserk.TokenSession(self.token)
         self.client = berserk.Client(session)
@@ -26,11 +26,14 @@ class LichessBroadcast:
         self.broadcast = broadcast["tour"]
         self.round_id = broadcast["rounds"][-1]["id"]
 
-        self.round_setup()
+        if self.game_id == 0:
+            self.round_setup()
 
     @property
     def pgn_list(self):
-        return [str(game) for game in self.pgn_game]
+        pgn_list = [str(game) for game in self.all_games]
+        pgn_list[self.game_id] = self.pgn_game + "*"
+        return pgn_list
 
     def round_setup(self):
         self.client.broadcasts.push_pgn_update(
@@ -52,7 +55,7 @@ class LichessBroadcast:
 
     def move(self, move):
         self.pgn_game += move + " "
-        with open("./ongoing_games/game{game_id}.pgn", "w") as f:
+        with open(f"./ongoing_games/game{self.game_id}.pgn", "w") as f:
             f.write(self.pgn_game)
         self.push_current_pgn()
         print("Done playing move " + str(move))
