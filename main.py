@@ -194,12 +194,6 @@ while not broadcast.board.is_game_over():
                     fgmask, previous_frame, last_frame
                 ):
                     continue
-                    # pass
-                    # import uuid
-                    # id = str(uuid.uuid1())
-                    # cv2.imwrite(id+"frame_fail.jpg", last_frame)
-                    # cv2.imwrite(id+"mask_fail.jpg", fgmask)
-                    # cv2.imwrite(id+"background_fail.jpg", previous_frame)
                 if DEBUG:
                     cv2.imwrite(
                         "images/"

@@ -65,6 +65,9 @@ class LichessBroadcast:
 
     def move(self, move):
         self.num_half_moves += 1
+        # If it is a white move, add a newline and the move number.
+        if self.num_half_moves % 2 == 1:
+            self.pgn_game += f"\n{(self.num_half_moves + 1) // 2}. "
         self.pgn_game += move + self.get_clock_update() + " "
         with open(f"./ongoing_games/game{self.game_id}.pgn", "w") as f:
             f.write(self.pgn_game)
@@ -80,7 +83,7 @@ class LichessBroadcast:
         self.clock_times[what_clock] += self.increment
         clock_str = str(
             datetime.timedelta(seconds=self.clock_times[what_clock])
-        )
+        ).split(".")[0]
         return f" {{[%clk {clock_str}]}}"
 
 
@@ -91,22 +94,25 @@ if __name__ == "__main__":
     broadcast_id = "r9K4Vjgf"
 
     with open("initial_game.pgn") as f:
-        pgn = f.read().split("\n\n\n")
-    pgn_games = pgn
+        pgn_games = f.read().split("\n\n\n")
 
-    broadcast = LichessBroadcast(token, broadcast_id, pgn_games)
+    broadcast = LichessBroadcast(token, broadcast_id, pgn_games, 0)
 
     broadcast.round_setup()
 
     broadcast.move("e4")
+    time.sleep(4)
     broadcast.move("e5")
+    time.sleep(2)
     broadcast.move("Nf3")
+    time.sleep(1)
     broadcast.move("Nc6")
+    time.sleep(3)
     broadcast.move("Bb5")
 
-    input("Press Enter after updating PGN")
-    with open("ongoing_games.pgn") as f:
-        broadcast.pgn_game = f.read().split("\n\n\n")
-    broadcast.push_current_pgn()
+    # input("Press Enter after updating PGN")
+    # with open("ongoing_games.pgn") as f:
+    #     broadcast.pgn_game = f.read().split("\n\n\n")
+    # broadcast.push_current_pgn()
 
-    broadcast.move("Bc5")
+    # broadcast.move("Bc5")
