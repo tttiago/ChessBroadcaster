@@ -1,15 +1,25 @@
+import datetime
 import sys
+import time
 
 import berserk
 
 
 class LichessBroadcast:
-    def __init__(self, token, broadcast_id, pgn_games, game_id):
+    def __init__(
+        self, token, broadcast_id, pgn_games, game_id, time_control="90+30"
+    ):
         self.token = token
         self.broadcast_id = broadcast_id
         self.game_id = game_id
         self.all_games = pgn_games
         self.pgn_game = pgn_games[game_id] + "\n\n"
+        init_minutes = int(time_control.split("+")[0])
+        self.clock_times = [init_minutes * 60, init_minutes * 60]
+        self.increment = int(time_control.split("+")[1])
+        self.num_half_moves = 0
+        self.last_move_time = time.time()
+        self.cur_move_time = None
 
         session = berserk.TokenSession(self.token)
         self.client = berserk.Client(session)
@@ -54,11 +64,24 @@ class LichessBroadcast:
             print("Reconnected to Lichess.")
 
     def move(self, move):
-        self.pgn_game += move + " "
+        self.num_half_moves += 1
+        self.pgn_game += move + self.get_clock_update() + " "
         with open(f"./ongoing_games/game{self.game_id}.pgn", "w") as f:
             f.write(self.pgn_game)
         self.push_current_pgn()
         print("Done playing move " + str(move))
+
+    def get_clock_update(self):
+        self.cur_move_time = time.time()
+        elapsed_time = self.cur_move_time - self.last_move_time
+        self.last_move_time = self.cur_move_time
+        what_clock = (self.num_half_moves - 1) % 2
+        self.clock_times[what_clock] -= elapsed_time
+        self.clock_times[what_clock] += self.increment
+        clock_str = str(
+            datetime.timedelta(seconds=self.clock_times[what_clock])
+        )
+        return f" {{[%clk {clock_str}]}}"
 
 
 if __name__ == "__main__":
