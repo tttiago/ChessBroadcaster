@@ -1,6 +1,6 @@
 __pycache__/
 images/
-.txt
-teste*
-constants/
 ongoing_games/
+constants/
+teste*
+gui.py
