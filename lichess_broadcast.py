@@ -68,6 +68,7 @@ class LichessBroadcast:
         # If it is a white move, add a newline and the move number.
         if self.num_half_moves % 2 == 1:
             self.pgn_game += f"\n{(self.num_half_moves + 1) // 2}. "
+
         self.pgn_game += move + self.get_clock_update() + " "
         with open(f"./ongoing_games/game{self.game_id}.pgn", "w") as f:
             f.write(self.pgn_game)
@@ -88,27 +89,36 @@ class LichessBroadcast:
 
 
 if __name__ == "__main__":
+    import glob
     import os
 
     token = os.environ.get("LICHESS_TOKEN")
     broadcast_id = "r9K4Vjgf"
 
-    with open("initial_game.pgn") as f:
-        pgn_games = f.read().split("\n\n\n")
-
+    # End transmission.
+    pgn_games = []
+    for game in glob.glob("./ongoing_games/*"):
+        with open(game) as f:
+            pgn_games.append(f.read())
     broadcast = LichessBroadcast(token, broadcast_id, pgn_games, 0)
-
     broadcast.round_setup()
 
-    broadcast.move("e4")
-    time.sleep(4)
-    broadcast.move("e5")
-    time.sleep(2)
-    broadcast.move("Nf3")
-    time.sleep(1)
-    broadcast.move("Nc6")
-    time.sleep(3)
-    broadcast.move("Bb5")
+    # with open("initial_games.pgn") as f:
+    #     pgn_games = f.read().split("\n\n\n")
+
+    # broadcast = LichessBroadcast(token, broadcast_id, pgn_games, 0)
+
+    # broadcast.round_setup()
+
+    # broadcast.move("e4")
+    # time.sleep(4)
+    # broadcast.move("e5")
+    # time.sleep(2)
+    # broadcast.move("Nf3")
+    # time.sleep(1)
+    # broadcast.move("Nc6")
+    # time.sleep(3)
+    # broadcast.move("Bb5")
 
     # input("Press Enter after updating PGN")
     # with open("ongoing_games.pgn") as f:

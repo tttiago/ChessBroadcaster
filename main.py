@@ -1,12 +1,9 @@
-import io
 import os
 import pickle
 import sys
 import time
 from collections import deque
 
-import chess
-import chess.pgn
 import cv2
 import numpy as np
 from pynput import keyboard
@@ -39,7 +36,7 @@ token = os.environ.get("LICHESS_TOKEN")
 broadcast_id = broadcast_id = "r9K4Vjgf"
 
 # Load the games metadata from a single PGN file.
-with open("initial_game.pgn") as f:
+with open("initial_games.pgn") as f:
     pgn_games = f.read().split("\n\n\n")
 
 
@@ -71,28 +68,23 @@ video_capture_thread.start()
 def on_press(key):
     try:
         if key.char == ("u"):
-            undo_moves()
+            correct_moves()
+        elif key.char == ("y"):
+            correct_clocks()
     except AttributeError:
         pass
 
 
-def undo_moves():
-    input(
-        "Edit the game you want and press the number corresponding to the game."
-    )
-    with open(f"./ongoing_games/game{game_id}.pgn") as f:
-        broadcast.internet_broadcast.pgn_game = f.read()
+def correct_moves():
+    input("Edit the game you want and press Enter.")
+    broadcast.correct_moves()
 
-    broadcast.internet_broadcast.push_current_pgn()
-    print("Done updating broadcast.")
-    game = chess.pgn.read_game(
-        io.StringIO(broadcast.internet_broadcast.pgn_game.split("\n")[-1])
-    )
-    broadcast.board = game.board()
-    for move in game.mainline_moves():
-        broadcast.board.push(move)
 
-    print("Done updating board.\n")
+def correct_clocks():
+    response = input(
+        "Write White and Black's clock times ('h:mm:ss, h:mm:ss') and press Enter."
+    )
+    broadcast.correct_clocks(response)
 
 
 listener = keyboard.Listener(on_press=on_press)

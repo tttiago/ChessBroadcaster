@@ -1,4 +1,7 @@
+import io
+
 import chess
+import chess.pgn
 import cv2
 import numpy as np
 
@@ -15,6 +18,7 @@ class Broadcast:
             token, broadcast_id, pgn_games, game_id
         )
         self.board_basics = board_basics
+        self.game_id = game_id
         self.executed_moves = []
         self.played_moves = []
         self.board = chess.Board()
@@ -419,3 +423,32 @@ class Broadcast:
             return True, valid_move_string
         else:
             return False, valid_move_string
+
+    def correct_moves(self):
+        with open(f"./ongoing_games/game{self.game_id}.pgn") as f:
+            self.internet_broadcast.pgn_game = f.read()
+
+        self.internet_broadcast.push_current_pgn()
+        print("Done updating broadcast.")
+        game = chess.pgn.read_game(
+            io.StringIO(self.internet_broadcast.pgn_game.split("\n")[-1])
+        )
+        self.board = game.board()
+        for move in game.mainline_moves():
+            self.board.push(move)
+
+        print("Done updating board.\n")
+
+    def correct_clocks(self, response):
+        try:
+            times = response.split(",")
+            self.internet_broadcast.clock_times[0] = self.get_sec(times[0])
+            self.internet_broadcast.clock_times[1] = self.get_sec(times[1])
+        except:
+            print("Clock times could not be updated.")
+
+    @staticmethod
+    def get_sec(time_str):
+        """Get seconds from time."""
+        h, m, s = time_str.split(":")
+        return int(h) * 3600 + int(m) * 60 + int(s)
