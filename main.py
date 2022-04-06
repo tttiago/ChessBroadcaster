@@ -82,7 +82,7 @@ def correct_moves():
 
 def correct_clocks():
     response = input(
-        "Write White and Black's clock times ('h:mm:ss, h:mm:ss') and press Enter."
+        "Write White and Black's clock times ('h:mm:ss, h:mm:ss') and press Enter.\n"
     )
     broadcast.correct_clocks(response)
 

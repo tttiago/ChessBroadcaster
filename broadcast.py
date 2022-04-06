@@ -1,4 +1,5 @@
 import io
+import re
 
 import chess
 import chess.pgn
@@ -431,17 +432,21 @@ class Broadcast:
         self.internet_broadcast.push_current_pgn()
         print("Done updating broadcast.")
         game = chess.pgn.read_game(
-            io.StringIO(self.internet_broadcast.pgn_game.split("\n")[-1])
+            io.StringIO(self.internet_broadcast.pgn_game.split("\n\n")[-1])
         )
         self.board = game.board()
+        self.internet_broadcast.num_half_moves = 0
         for move in game.mainline_moves():
             self.board.push(move)
+            self.internet_broadcast.num_half_moves += 1
 
         print("Done updating board.\n")
 
     def correct_clocks(self, response):
         try:
-            times = response.split(",")
+            # Find 'h:mm:ss' parts.
+            times = re.findall("([0-9]:[0-5][0-9]:[0-5][0-9])", response)
+            # Assign each time string to the respective clock.
             self.internet_broadcast.clock_times[0] = self.get_sec(times[0])
             self.internet_broadcast.clock_times[1] = self.get_sec(times[1])
         except:
