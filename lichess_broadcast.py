@@ -6,9 +6,7 @@ import berserk
 
 
 class LichessBroadcast:
-    def __init__(
-        self, token, broadcast_id, pgn_games, game_id, time_control="90+30"
-    ):
+    def __init__(self, token, broadcast_id, pgn_games, game_id, time_control="90+30"):
         self.token = token
         self.broadcast_id = broadcast_id
         self.game_id = game_id
@@ -82,9 +80,7 @@ class LichessBroadcast:
         what_clock = (self.num_half_moves - 1) % 2
         self.clock_times[what_clock] -= elapsed_time
         self.clock_times[what_clock] += self.increment
-        clock_str = str(
-            datetime.timedelta(seconds=self.clock_times[what_clock])
-        ).split(".")[0]
+        clock_str = str(datetime.timedelta(seconds=self.clock_times[what_clock])).split(".")[0]
         return f" {{[%clk {clock_str}]}}"
 
 

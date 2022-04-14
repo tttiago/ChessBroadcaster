@@ -105,9 +105,7 @@ while True:
         print("Error reading frame. Please check your webcam connection.")
         continue
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    retval, corners = cv2.findChessboardCorners(
-        gray, patternSize=board_dimensions
-    )
+    retval, corners = cv2.findChessboardCorners(gray, patternSize=board_dimensions)
 
     if retval:
         if SHOW_INFO:
@@ -120,9 +118,7 @@ while True:
                 + "detected chess board corners and finish board calibration.",
             )
             root.destroy()
-        if (
-            corners[0][0][0] > corners[-1][0][0]
-        ):  # corners returned in reverse order
+        if corners[0][0][0] > corners[-1][0][0]:  # corners returned in reverse order
             corners = corners[::-1]
         minX, maxX, minY, maxY = inf, -inf, inf, -inf
         augmented_corners = []
@@ -230,9 +226,7 @@ while True:
             elif response & 0xFF == ord("q"):
                 cv2.imwrite(
                     "images/calibrated_board.jpg",
-                    mark_corners(
-                        frame.copy(), augmented_corners, rotation_count
-                    ),
+                    mark_corners(frame.copy(), augmented_corners, rotation_count),
                 )
                 break
         break
@@ -249,16 +243,10 @@ def euclidean_distance(first, second):
     return sqrt((first[0] - second[0]) ** 2 + (first[1] - second[1]) ** 2)
 
 
-first_row = euclidean_distance(
-    augmented_corners[1][1], augmented_corners[1][7]
-)
+first_row = euclidean_distance(augmented_corners[1][1], augmented_corners[1][7])
 last_row = euclidean_distance(augmented_corners[7][1], augmented_corners[7][7])
-first_column = euclidean_distance(
-    augmented_corners[1][1], augmented_corners[7][1]
-)
-last_column = euclidean_distance(
-    augmented_corners[1][7], augmented_corners[7][7]
-)
+first_column = euclidean_distance(augmented_corners[1][1], augmented_corners[7][1])
+last_column = euclidean_distance(augmented_corners[1][7], augmented_corners[7][7])
 
 if abs(first_row - last_row) >= abs(first_column - last_column):
     if first_row >= last_row:

@@ -55,9 +55,7 @@ infile.close()
 board_basics = BoardBasics(side_view_compensation, rotation_count)
 
 
-broadcast = Broadcast(
-    board_basics, token, broadcast_id, pgn_games, roi_mask, game_id
-)
+broadcast = Broadcast(board_basics, token, broadcast_id, pgn_games, roi_mask, game_id)
 
 video_capture_thread = Video_capture_thread()
 video_capture_thread.daemon = True
@@ -81,9 +79,7 @@ def correct_moves():
 
 
 def correct_clocks():
-    response = input(
-        "Write White and Black's clock times ('h:mm:ss, h:mm:ss') and press Enter.\n"
-    )
+    response = input("Write White and Black's clock times ('h:mm:ss, h:mm:ss') and press Enter.\n")
     broadcast.correct_clocks(response)
 
 
@@ -182,15 +178,11 @@ while not broadcast.board.is_game_over():
 
         if not broadcast.is_light_change(last_frame):
             for i in range(2):
-                if not broadcast.register_move(
-                    fgmask, previous_frame, last_frame
-                ):
+                if not broadcast.register_move(fgmask, previous_frame, last_frame):
                     continue
                 if DEBUG:
                     cv2.imwrite(
-                        "images/"
-                        + broadcast.executed_moves[-1]
-                        + " frame.jpg",
+                        "images/" + broadcast.executed_moves[-1] + " frame.jpg",
                         last_frame,
                     )
                     cv2.imwrite(
@@ -198,13 +190,11 @@ while not broadcast.board.is_game_over():
                         fgmask,
                     )
                     cv2.imwrite(
-                        "images/"
-                        + broadcast.executed_moves[-1]
-                        + " background.jpg",
+                        "images/" + broadcast.executed_moves[-1] + " background.jpg",
                         previous_frame,
                     )
 
-        previous_frame_queue = deque(maxlen=75)  # maxlen = 10
+        previous_frame_queue = deque(maxlen=75)
         previous_frame_queue.append(last_frame)
     else:
         move_fgbg.apply(frame)

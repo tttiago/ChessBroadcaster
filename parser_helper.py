@@ -3,9 +3,7 @@ import os
 
 
 def create_parser():
-    parser = argparse.ArgumentParser(
-        description="Calibrate camera using empty board."
-    )
+    parser = argparse.ArgumentParser(description="Calibrate camera using empty board.")
     parser.add_argument(
         "-c",
         "--camera-index",
