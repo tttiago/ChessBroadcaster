@@ -387,6 +387,7 @@ class Broadcast:
             # Assign each time string to the respective clock.
             self.internet_broadcast.clock_times[0] = self.get_sec(times[0])
             self.internet_broadcast.clock_times[1] = self.get_sec(times[1])
+            print("Clocks successfully updated.")
         else:
             print("Clock times could not be updated.")
 

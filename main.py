@@ -7,10 +7,10 @@ from collections import deque
 import cv2
 import numpy as np
 from pynput import keyboard
-from pynput.keyboard import Controller, Key
 
 from board_basics import BoardBasics
 from broadcast import Broadcast
+from broadcast_fixer import BroadcastFixer
 from helper import perspective_transform
 from parser_helper import CameraInfo, create_parser
 from videocapture import Video_capture_thread
@@ -62,34 +62,8 @@ video_capture_thread.daemon = True
 video_capture_thread.capture = cv2.VideoCapture(cap_index, cap_api)
 video_capture_thread.start()
 
-keyboard = Controller()
-
-# Keyboard Detection
-def on_press(key):
-    try:
-        if key.char == ("u"):
-            keyboard.press(Key.enter)
-            keyboard.release(Key.enter)
-            correct_moves()
-        elif key.char == ("y"):
-            keyboard.press(Key.enter)
-            keyboard.release(Key.enter)
-            correct_clocks()
-    except AttributeError:
-        pass
-
-
-def correct_moves():
-    input("Edit the game you want and press Enter.")
-    broadcast.correct_moves()
-
-
-def correct_clocks():
-    response = input("Write White and Black's clock times ('h:mm:ss, h:mm:ss') and press Enter.\n")
-    broadcast.correct_clocks(response)
-
-
-listener = keyboard.Listener(on_press=on_press)
+broadcast_fixer = BroadcastFixer(broadcast)
+listener = broadcast_fixer.listener
 listener.start()
 
 
