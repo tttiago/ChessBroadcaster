@@ -14,7 +14,7 @@ DEBUG = False
 SHOW_INFO = True
 
 
-parser = create_parser()
+parser = create_parser(task="calibrate")
 args = parser.parse_args()
 
 camera_info = CameraInfo()

@@ -7,6 +7,7 @@ from collections import deque
 import cv2
 import numpy as np
 from pynput import keyboard
+from pynput.keyboard import Controller, Key
 
 from board_basics import BoardBasics
 from broadcast import Broadcast
@@ -14,9 +15,9 @@ from helper import perspective_transform
 from parser_helper import CameraInfo, create_parser
 from videocapture import Video_capture_thread
 
-DEBUG = True
+DEBUG = False
 
-parser = create_parser()
+parser = create_parser(task="broadcast")
 args = parser.parse_args()
 
 camera_info = CameraInfo()
@@ -29,7 +30,7 @@ cap_index = RTSP_URL
 # cap_index = 0
 # cap_api = cv2.CAP_ANY
 
-game_id = args.game_id
+game_id = args.game_id - 1  # To use the table number as index.
 
 # Lichess Token and Broadcast ID
 token = os.environ.get("LICHESS_TOKEN")
@@ -54,7 +55,6 @@ corners, side_view_compensation, rotation_count, roi_mask = pickle.load(infile)
 infile.close()
 board_basics = BoardBasics(side_view_compensation, rotation_count)
 
-
 broadcast = Broadcast(board_basics, token, broadcast_id, pgn_games, roi_mask, game_id)
 
 video_capture_thread = Video_capture_thread()
@@ -62,12 +62,18 @@ video_capture_thread.daemon = True
 video_capture_thread.capture = cv2.VideoCapture(cap_index, cap_api)
 video_capture_thread.start()
 
+keyboard = Controller()
+
 # Keyboard Detection
 def on_press(key):
     try:
         if key.char == ("u"):
+            keyboard.press(Key.enter)
+            keyboard.release(Key.enter)
             correct_moves()
         elif key.char == ("y"):
+            keyboard.press(Key.enter)
+            keyboard.release(Key.enter)
             correct_clocks()
     except AttributeError:
         pass
