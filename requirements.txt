@@ -3,4 +3,4 @@ python-chess
 numpy
 scikit-image
 berserk
-pyinput
+pynput
