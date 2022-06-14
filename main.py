@@ -6,14 +6,13 @@ from collections import deque
 
 import cv2
 import numpy as np
-from pynput import keyboard
 
 from board_basics import BoardBasics
 from broadcast import Broadcast
 from broadcast_fixer import BroadcastFixer
 from helper import perspective_transform
 from parser_helper import CameraInfo, create_parser
-from videocapture import Video_capture_thread
+from video_capture import Video_capture_thread
 
 DEBUG = False
 
@@ -50,11 +49,10 @@ move_fgbg = cv2.createBackgroundSubtractorKNN()
 motion_fgbg = cv2.createBackgroundSubtractorKNN(history=HISTORY)
 
 filename = f"./constants/constants{cam_id}.bin"
-infile = open(filename, "rb")
-corners, side_view_compensation, rotation_count, roi_mask = pickle.load(infile)
-infile.close()
-board_basics = BoardBasics(side_view_compensation, rotation_count)
+with open(filename, "rb") as infile:
+    corners, side_view_compensation, rotation_count, roi_mask = pickle.load(infile)
 
+board_basics = BoardBasics(side_view_compensation, rotation_count)
 broadcast = Broadcast(board_basics, token, broadcast_id, pgn_games, roi_mask, game_id)
 
 video_capture_thread = Video_capture_thread()

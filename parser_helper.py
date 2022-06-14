@@ -25,7 +25,7 @@ def create_parser(task="broadcast"):
         type=int,
         nargs="?",
         default=1,
-        help="Index of the game to be used (starts at 1).",
+        help="Number of the table to be broadcasted (starts at 1).",
     )
     parser.add_argument(
         "-s",

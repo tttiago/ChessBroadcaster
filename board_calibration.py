@@ -262,9 +262,8 @@ else:
 print("Side view compensation" + str(side_view_compensation))
 print("Rotation count " + str(rotation_count))
 filename = f"./constants/constants{cam_id}.bin"
-outfile = open(filename, "wb")
-pickle.dump(
-    [augmented_corners, side_view_compensation, rotation_count, roi_mask],
-    outfile,
-)
-outfile.close()
+with open(filename, "wb") as outfile:
+    pickle.dump(
+        [augmented_corners, side_view_compensation, rotation_count, roi_mask],
+        outfile,
+    )

@@ -6,7 +6,7 @@ import berserk
 
 
 class LichessBroadcast:
-    def __init__(self, token, broadcast_id, pgn_games, game_id, time_control="90+30"):
+    def __init__(self, token, broadcast_id, pgn_games, game_id, time_control="90+30", round=None):
         self.token = token
         self.broadcast_id = broadcast_id
         self.game_id = game_id
@@ -32,7 +32,7 @@ class LichessBroadcast:
             sys.exit(0)
 
         self.broadcast = broadcast["tour"]
-        self.round_id = broadcast["rounds"][-1]["id"]
+        self.round_id = broadcast["rounds"][-1 if not round else round]["id"]
 
         if self.game_id == 0:
             self.round_setup()
