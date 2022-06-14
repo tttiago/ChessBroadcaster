@@ -32,4 +32,4 @@ Based on the work of Alper Karayaman and Frank Groeneveld. See https://github.co
 - numpy
 - scikit-image
 - berserk
-- pyinput
+- pynput
