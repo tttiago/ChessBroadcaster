@@ -1,3 +1,5 @@
+"""Handle the streaming of the registered moves to Lichess."""
+
 import datetime
 import sys
 import time
@@ -82,43 +84,3 @@ class LichessBroadcast:
         self.clock_times[what_clock] += self.increment
         clock_str = str(datetime.timedelta(seconds=self.clock_times[what_clock])).split(".")[0]
         return f" {{[%clk {clock_str}]}}"
-
-
-if __name__ == "__main__":
-    import glob
-    import os
-
-    token = os.environ.get("LICHESS_TOKEN")
-    broadcast_id = "r9K4Vjgf"
-
-    # End transmission.
-    pgn_games = []
-    for game in glob.glob("./ongoing_games/*"):
-        with open(game) as f:
-            pgn_games.append(f.read())
-    broadcast = LichessBroadcast(token, broadcast_id, pgn_games, 0)
-    broadcast.round_setup()
-
-    # with open("initial_games.pgn") as f:
-    #     pgn_games = f.read().split("\n\n\n")
-
-    # broadcast = LichessBroadcast(token, broadcast_id, pgn_games, 0)
-
-    # broadcast.round_setup()
-
-    # broadcast.move("e4")
-    # time.sleep(4)
-    # broadcast.move("e5")
-    # time.sleep(2)
-    # broadcast.move("Nf3")
-    # time.sleep(1)
-    # broadcast.move("Nc6")
-    # time.sleep(3)
-    # broadcast.move("Bb5")
-
-    # input("Press Enter after updating PGN")
-    # with open("ongoing_games.pgn") as f:
-    #     broadcast.pgn_game = f.read().split("\n\n\n")
-    # broadcast.push_current_pgn()
-
-    # broadcast.move("Bc5")

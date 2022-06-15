@@ -1,3 +1,5 @@
+"""Calibrate a single camera using an empty board."""
+
 import pickle
 import sys
 import tkinter as tk
@@ -7,8 +9,9 @@ from tkinter import messagebox
 import cv2
 import numpy as np
 
+from broadcast_info import BroadcastInfo
 from helper import edge_detection, perspective_transform, rotateMatrix
-from parser_helper import CameraInfo, create_parser
+from parser_helper import create_parser
 
 DEBUG = False
 SHOW_INFO = True
@@ -17,11 +20,12 @@ SHOW_INFO = True
 parser = create_parser(task="calibrate")
 args = parser.parse_args()
 
-camera_info = CameraInfo()
+broadcast_info = BroadcastInfo()
 cam_id = args.camera_index
-cam_ip = camera_info.IPs[cam_id - 1]
+cam_ip = broadcast_info.IPs[cam_id - 1]
+cam_pwd = broadcast_info.camera_password
 stream = args.stream
-RTSP_URL = f"rtsp://camera{cam_id}:admin123@{cam_ip}:554/stream{stream}"
+RTSP_URL = f"rtsp://camera{cam_id}:{cam_pwd}@{cam_ip}:554/stream{stream}"
 cap_api = cv2.CAP_FFMPEG
 
 # cap_index = 0  # 3 com a webcam do galitos; 0 com o telemovel

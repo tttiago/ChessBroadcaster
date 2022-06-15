@@ -1,3 +1,5 @@
+"""Allow to use command line arguments for the camera and board numbers."""
+
 import argparse
 import os
 
@@ -37,15 +39,3 @@ def create_parser(task="broadcast"):
         help="Index of the stream to be used (1 is 720p, 2 is 360p).",
     )
     return parser
-
-
-class CameraInfo:
-    def __init__(self):
-        self.IPs = [
-            "192.168.0.122",
-            "192.168.0.123",
-            "192.168.0.107",
-            "192.168.0.108",
-            "192.168.0.109",
-        ]
-        self.password = os.environ.get("CAMERA_GALITOS")

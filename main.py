@@ -10,8 +10,9 @@ import numpy as np
 from board_basics import BoardBasics
 from broadcast import Broadcast
 from broadcast_fixer import BroadcastFixer
+from broadcast_info import BroadcastInfo
 from helper import perspective_transform
-from parser_helper import CameraInfo, create_parser
+from parser_helper import create_parser
 from video_capture import Video_capture_thread
 
 DEBUG = False
@@ -19,11 +20,12 @@ DEBUG = False
 parser = create_parser(task="broadcast")
 args = parser.parse_args()
 
-camera_info = CameraInfo()
+broadcast_info = BroadcastInfo()
 cam_id = args.camera_index
-cam_ip = camera_info.IPs[cam_id - 1]
+cam_ip = broadcast_info.IPs[cam_id - 1]
+cam_pwd = broadcast_info.camera_password
 stream = args.stream
-RTSP_URL = f"rtsp://camera{cam_id}:admin123@{cam_ip}:554/stream{stream}"
+RTSP_URL = f"rtsp://camera{cam_id}:{cam_pwd}@{cam_ip}:554/stream{stream}"
 cap_api = cv2.CAP_FFMPEG
 cap_index = RTSP_URL
 # cap_index = 0
@@ -33,7 +35,7 @@ game_id = args.game_id - 1  # To use the table number as index.
 
 # Lichess Token and Broadcast ID
 token = os.environ.get("LICHESS_TOKEN")
-broadcast_id = broadcast_id = "r9K4Vjgf"
+broadcast_id = broadcast_id = "DZIXQnPc"
 
 # Load the games metadata from a single PGN file.
 with open("initial_games.pgn") as f:

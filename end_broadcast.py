@@ -3,10 +3,12 @@
 import glob
 import os
 
+from broadcast_info import BroadcastInfo
 from lichess_broadcast import LichessBroadcast
 
 token = os.environ.get("LICHESS_TOKEN")
-broadcast_id = "DZIXQnPc"
+broadcast_info = BroadcastInfo()
+broadcast_id = broadcast_info.broadcast_id
 
 pgn_games = []
 for game in glob.glob("./ongoing_games/*"):
