@@ -7,23 +7,42 @@ Based on the work of Alper Karayaman and Frank Groeneveld. See https://github.co
 
 ## Setup
 
+0. Make sure you use the right index and API to connect to your camera. `test_video.py` can be useful.
+
 1. Place your camera near to your chessboard so that all of the squares and pieces can be clearly seen by it. Preferably, it should be above the chess board.
 
 2. Remove all pieces from your chess board.
 
-3. Run "board_calibration.py"
-
-4. Check that corners of your chess board are correctly detected by "board_calibration.py" and press key "q" to save detected chess board corners. You don't need to manually select chess board corners, it should be automatically detected by the program. The square covered by points (0,0), (0,1),(1,0) and (1,1) should be a8. You can rotate the image by pressing key "r" to adjust that. Example chess board detection result:
+3. Run `board_calibration.py`. Check that the corners of your chess board are correctly detected and press key "q" to save detected chess board corners. The program should detect the corners instantly. The square covered by points (0,0), (0,1),(1,0) and (1,1) should be a8. You can rotate the image by pressing key "r" to adjust that. Example chess board detection result:
 
    ![](./calibrated_board.jpg)
 
 ## Usage
 
-1. Place pieces of chess board to their starting position.
-2. Run "main.py"
-3. Make the moves in the real board.
-4. Enjoy!
+1. Place the pieces of the chess board in their starting position.
+2. Make sure you create the `initial_games.pgn` file (you can use the provided template).
+3. Create a Lichess broadcast. Save the broadcast id, and your Lichess token.
+3. Run `main.py`.
+4. Make the moves in the real board.
+5. Enjoy!
 
+## Additional features
+
+### 1. Multiple boards
+
+You can use multiple cameras to record multiple boards, by starting different instances of `main.py` using 
+
+   <code>python main.py -c CAMERA_INDEX -g BOARD_NUMBER</code>
+
+Make sure you have previously calibrated each camera with
+
+   <code>python board_calibration.py -c CAMERA_INDEX</code>
+
+### 2.Correct moves and clock times
+
+To correct moves, press U+BOARD_NUMBER, edit `game_{BOARD_NUMBER-1}.pgn` and press Enter. Clock times can also be updated by inserting `{[%clk h:mm:ss]}` after a move.
+
+To correct clock times, press Y+BOARD_NUMBER, enter both times in 'h:mm:ss, h:mm:ss' format and press Enter. You should enter the time each player had after their last move.
 
 ## Required libraries
 
