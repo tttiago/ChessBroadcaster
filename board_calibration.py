@@ -28,9 +28,6 @@ stream = args.stream
 RTSP_URL = f"rtsp://camera{cam_id}:{cam_pwd}@{cam_ip}:554/stream{stream}"
 cap_api = cv2.CAP_FFMPEG
 
-# cap_index = 0  # 3 com a webcam do galitos; 0 com o telemovel
-# cap_api = cv2.CAP_ANY
-
 
 def mark_corners(frame, augmented_corners, rotation_count):
     height, width = frame.shape[:2]

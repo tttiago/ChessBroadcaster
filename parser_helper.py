@@ -1,7 +1,6 @@
 """Allow to use command line arguments for the camera and board numbers."""
 
 import argparse
-import os
 
 
 def create_parser(task="broadcast"):

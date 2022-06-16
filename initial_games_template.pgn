@@ -1,0 +1,48 @@
+[Event "Template Tournament"]
+[Site "Unknown Location"]
+[Round "1.1"]
+[White "Doe, John"]
+[WhiteElo "2076"]
+[Black "Person, Random"]
+[BlackElo "1411"]
+[Date "2022.06.15"]
+
+
+[Event "Template Tournament"]
+[Site "Unknown Location"]
+[Round "1.2"]
+[White "Girl, Random"]
+[WhiteElo "1367"]
+[Black "Boy, Random"]
+[BlackElo "1956"]
+[Date "2022.06.15"]
+
+
+[Event "Template Tournament"]
+[Site "Unknown Location"]
+[Round "1.3"]
+[White "Scott, Michael"]
+[WhiteElo "1887"]
+[Black "Knope, Leslie"]
+[BlackElo "1361"]
+[Date "2022.06.15"]
+
+
+[Event "Template Tournament"]
+[Site "Unknown Location"]
+[Round "1.4"]
+[White "Swanson, Ron"]
+[WhiteElo "1292"]
+[Black "Halpert, Jimothy"]
+[BlackElo "1823"]
+[Date "2022.06.15"]
+
+
+[Event "Template Tournament"]
+[Site "Unknown Location"]
+[Round "1.5"]
+[White "Player, Better"]
+[WhiteElo "1726"]
+[Black "Player, Worse"]
+[BlackElo "1189"]
+[Date "2022.06.15"]
