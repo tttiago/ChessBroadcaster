@@ -40,7 +40,7 @@ Make sure you have previously calibrated each camera with
 
 ### 2.Correct moves and clock times
 
-To correct moves, press U+BOARD_NUMBER, edit `game_{BOARD_NUMBER-1}.pgn` and press Enter. Clock times can also be updated by inserting `{[%clk h:mm:ss]}` after a move.
+To correct moves, press U+BOARD_NUMBER, edit `game_{BOARD_NUMBER-1}.pgn` and press Enter.
 
 To correct clock times, press Y+BOARD_NUMBER, enter both times in 'h:mm:ss, h:mm:ss' format and press Enter. You should enter the time each player had after their last move.
 
