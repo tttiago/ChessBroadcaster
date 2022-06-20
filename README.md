@@ -26,6 +26,10 @@ Based on the work of Alper Karayaman and Frank Groeneveld. See https://github.co
 4. Make the moves in the real board.
 5. Enjoy!
 
+## TODO
+
+Create an intuitive user interface for multi-board broadcasting.
+
 ## Additional features
 
 ### 1. Multiple boards
