@@ -3,19 +3,27 @@
 Program that enables you to broadcast chess games played in a real chess board to Lichess.  
 Using computer vision it will detect the moves made on chess board. It will also try to estimate the clock times.
 
-Based on the work of Alper Karayaman and Frank Groeneveld. See https://github.com/karayaman/Play-online-chess-with-real-chess-board
+Based on the work of Alper Karayaman. See https://github.com/karayaman/Play-online-chess-with-real-chess-board and https://github.com/karayaman/lichess-with-a-real-board.
 
-## Setup
+## Camera Setup
 
-0. Make sure you use the right index and API to connect to your camera. `test_video.py` can be useful.
+1. Make sure you use the right index and API to connect to your camera. `test_video.py` can be useful.
 
-1. Place your camera near to your chessboard so that all of the squares and pieces can be clearly seen by it. Preferably, it should be above the chess board.
+2. Place your camera near to your chessboard so that all of the squares and pieces can be clearly seen by it. Preferably, it should be above the chess board.
 
-2. Remove all pieces from your chess board.
+3. Remove all pieces from your chess board.
 
-3. Run `board_calibration.py`. Check that the corners of your chess board are correctly detected and press key "q" to save detected chess board corners. The program should detect the corners instantly. The square covered by points (0,0), (0,1),(1,0) and (1,1) should be a8. You can rotate the image by pressing key "r" to adjust that. Example chess board detection result:
+4. Run `board_calibration.py`. Check that the corners of your chess board are correctly detected and press key "q" to save detected chess board corners. The program should detect the corners instantly. The square covered by points (0,0), (0,1),(1,0) and (1,1) should be a8. You can rotate the image by pressing key "r" to adjust that. Example chess board detection result:
 
    ![](./calibrated_board.jpg)
+
+## Broadcast setup
+
+1. Create a Lichess API Access Token, with read and write permissions for studies: https://lichess.org/account/oauth/token/create?scopes[]=study:read&scopes[]=study:write. Save the token as an environment variable or simply replace the lines in the code where the token is accessed by your token.
+
+2. Create a new live broadcast at https://lichess.org/broadcast/new. Make sure you create the first round.
+
+3. Copy the broadcast id to the file `broadcast_info.py`. You can get the id by going to the tournament settings of the broadcast, which redirects you to a page with the URL of https://lichess.org/broadcast/{broadcast_id}/edit. The desired id is the string between "broadcast/" and "/edit".
 
 ## Usage
 
@@ -28,7 +36,9 @@ Based on the work of Alper Karayaman and Frank Groeneveld. See https://github.co
 
 ## TODO
 
-Create an intuitive user interface for multi-board broadcasting.
+- Improve documentation.
+- Create an intuitive user interface for multi-board broadcasting.
+- Integrate the last move recognition improvements by Alper Karayaman at https://github.com/karayaman/Play-online-chess-with-real-chess-board/commit/a4361304c68f75b88bfefafc904382674a52880c
 
 ## Additional features
 
