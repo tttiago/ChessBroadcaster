@@ -28,12 +28,11 @@ Based on the work of Alper Karayaman. See https://github.com/karayaman/Play-onli
 ## Usage
 
 1. Place the pieces of the chess board in their starting position.
-2. Run `board_calibration.py` to calibrate the camera.
-3. Make sure you create the `initial_games.pgn` file (you can use the provided template).
-4. Create a Lichess broadcast. Save the broadcast id, and your Lichess token.
-5. Run `main.py`.
-6. Make the moves in the real board.
-7. Enjoy!
+2. Make sure you create the `initial_games.pgn` file (you can use the provided template).
+3. Create a Lichess broadcast. Save the broadcast id, and your Lichess token.
+4. Run `main.py`.
+5. Make the moves in the real board.
+6. Enjoy!
 
 ## TODO
 
