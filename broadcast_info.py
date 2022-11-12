@@ -6,13 +6,13 @@ from dataclasses import dataclass
 
 @dataclass
 class BroadcastInfo:
-    broadcast_id = "DZIXQnPc"
+    broadcast_id = "TNmpREIH"
 
     IPs = [
-        "192.168.0.122",
-        "192.168.0.123",
-        "192.168.0.107",
-        "192.168.0.108",
-        "192.168.0.109",
+        "192.168.1.74",
+        "192.168.1.98",
+        "192.168.1.72",
+        "192.168.1.97",
+        "192.168.1.100",
     ]
     camera_password = os.environ.get("CAMERA_GALITOS")
