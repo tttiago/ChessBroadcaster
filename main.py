@@ -25,7 +25,7 @@ broadcast_info = BroadcastInfo()
 
 # Lichess Token and Broadcast ID
 token = os.environ.get("LICHESS_TOKEN")
-broadcast_id = broadcast_id = "DZIXQnPc"
+broadcast_id = broadcast_info.broadcast_id
 
 # Camera setup
 cam_id = args.camera_index
