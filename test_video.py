@@ -7,8 +7,8 @@ from broadcast_info import BroadcastInfo
 # To use Tapo Cameras.
 broadcast_info = BroadcastInfo()
 pwd = broadcast_info.camera_password
-camera_ip = broadcast_info.IPs[0]
-RTSP_URL = f"rtsp://camera1:{pwd}@192.168.0.122:554/stream1"
+camera_ip = broadcast_info.IPs[4]
+RTSP_URL = f"rtsp://camera5:{pwd}@{camera_ip}/stream1"
 cap_index = RTSP_URL
 cap_api = cv2.CAP_FFMPEG
 
