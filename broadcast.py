@@ -10,6 +10,9 @@ from helper import detect_state, get_square_image
 from lichess_broadcast import LichessBroadcast
 
 
+import board_rendering
+
+
 class Broadcast:
     def __init__(
         self, board_basics, token, broadcast_id, pgn_games, roi_mask, game_id, round=None
@@ -239,6 +242,8 @@ class Broadcast:
 
         #self.internet_broadcast.move(self.executed_moves[-1])
         self.board.push(valid_move_UCI)
+
+        board_rendering.render(self.board)
 
         self.learn(next_frame)
         return True
