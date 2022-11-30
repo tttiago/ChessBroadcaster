@@ -5,9 +5,14 @@ Using computer vision it will detect the moves made on chess board. It will also
 
 Based on the work of Alper Karayaman. See https://github.com/karayaman/Play-online-chess-with-real-chess-board and https://github.com/karayaman/lichess-with-a-real-board.
 
+## Installing
+
+First clone this repository and install all dependencies with `pip install -r requirements.txt`
+
 ## Camera Setup
 
 1. Make sure you use the right index and API to connect to your camera. `test_video.py` can be useful.
+  - You can adjust these settings inside of `camera_info.py`
 
 2. Place your camera near to your chessboard so that all of the squares and pieces can be clearly seen by it. Preferably, it should be above the chess board.
 
@@ -17,7 +22,9 @@ Based on the work of Alper Karayaman. See https://github.com/karayaman/Play-onli
 
    ![](./calibrated_board.jpg)
 
-## Broadcast setup
+## Broadcast setup (not functional, skip this step)
+
+__Streaming to lichess.org currently not functional!__
 
 1. Create a Lichess API Access Token, with read and write permissions for studies: https://lichess.org/account/oauth/token/create?scopes[]=study:read&scopes[]=study:write. Save the token as an environment variable or simply replace the lines in the code where the token is accessed by your token.
 
@@ -30,9 +37,12 @@ Based on the work of Alper Karayaman. See https://github.com/karayaman/Play-onli
 1. Place the pieces of the chess board in their starting position.
 2. Make sure you create the `initial_games.pgn` file (you can use the provided template).
 3. Create a Lichess broadcast. Save the broadcast id, and your Lichess token.
-4. Run `main.py`.
-5. Make the moves in the real board.
-6. Enjoy!
+  - not required as lichess broadcasting is not functional
+4. Run `flask run` (flask will find `wsgi.py`)
+5. Run `main.py`.
+6. Open `http://127.0.0.1:5000/show` (replace with your flask ip)
+7. Make the moves in the real board.
+8. Enjoy!
 
 ## TODO
 
