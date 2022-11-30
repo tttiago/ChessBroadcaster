@@ -91,13 +91,13 @@ board_dimensions = (7, 7)
 
 for _ in range(10):
     ret, frame = cap.read()
-    if ret == False:
+    if not ret:
         print("Error reading frame. Please check your webcam connection.")
         continue
 
 while True:
     ret, frame = cap.read()
-    if ret == False:
+    if not ret:
         print("Error reading frame. Please check your webcam connection.")
         continue
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
