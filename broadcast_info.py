@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 @dataclass
 class BroadcastInfo:
-    broadcast_id = "TNmpREIH"
+    broadcast_id = "a9i3pnQP"
 
     IPs = [
         "192.168.1.74",

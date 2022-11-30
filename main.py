@@ -14,6 +14,7 @@ from broadcast_info import BroadcastInfo
 from helper import perspective_transform
 from parser_helper import create_parser
 from video_capture import Video_capture_thread
+from camera_info import CameraInfo
 
 ################################################################################
 
@@ -28,13 +29,8 @@ token = os.environ.get("LICHESS_TOKEN")
 broadcast_id = broadcast_info.broadcast_id
 
 # Camera setup
-cam_id = args.camera_index
-cam_ip = broadcast_info.IPs[cam_id - 1]
-cam_pwd = broadcast_info.camera_password
-stream = args.stream
-RTSP_URL = f"rtsp://camera{cam_id}:{cam_pwd}@{cam_ip}:554/stream{stream}"
-cap_api = cv2.CAP_FFMPEG
-cap_index = RTSP_URL
+cap = CameraInfo.video_capture
+cam_id = CameraInfo.cap_index
 
 # n_boards, from 1 to n ----> game_id from 0 to n-1
 game_id = args.game_id - 1
@@ -68,7 +64,7 @@ broadcast = Broadcast(board_basics, token, broadcast_id, pgn_games, roi_mask, ga
 
 video_capture_thread = Video_capture_thread()
 video_capture_thread.daemon = True
-video_capture_thread.capture = cv2.VideoCapture(cap_index, cap_api)
+video_capture_thread.capture = cap
 video_capture_thread.start()
 
 # Detect keypresses for the correction of moves and clock times.

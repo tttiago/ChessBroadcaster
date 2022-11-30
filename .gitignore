@@ -2,7 +2,7 @@ __pycache__/
 images/
 videos/
 ongoing_games/
-constants/
+constants/*
 teste*
 save_video.py
 initial_games.pgn

@@ -12,6 +12,7 @@ import numpy as np
 from broadcast_info import BroadcastInfo
 from helper import edge_detection, perspective_transform, rotateMatrix
 from parser_helper import create_parser
+from camera_info import CameraInfo
 
 DEBUG = False
 SHOW_INFO = True
@@ -21,13 +22,6 @@ parser = create_parser(task="calibrate")
 args = parser.parse_args()
 
 broadcast_info = BroadcastInfo()
-cam_id = args.camera_index
-cam_ip = broadcast_info.IPs[cam_id - 1]
-cam_pwd = broadcast_info.camera_password
-stream = args.stream
-RTSP_URL = f"rtsp://camera{cam_id}:{cam_pwd}@{cam_ip}:554/stream{stream}"
-cap_api = cv2.CAP_FFMPEG
-
 
 def mark_corners(frame, augmented_corners, rotation_count):
     height, width = frame.shape[:2]
@@ -86,8 +80,8 @@ if SHOW_INFO:
         + "to stop board calibration and change webcam/board position.",
     )
 
-cap = cv2.VideoCapture(RTSP_URL, cap_api)
-# cap = cv2.VideoCapture(cap_index, cap_api)
+cap = CameraInfo.video_capture
+cam_id = CameraInfo.cap_index
 
 if not cap.isOpened():
     print("Couldn't open your webcam. Please check your webcam connection.")
