@@ -26,15 +26,16 @@ class LichessBroadcast:
 
         try:
             broadcast = self.client.broadcasts.get(self.broadcast_id)
-            b_name = broadcast["tour"]["name"]
+            b_name = broadcast["name"]
             print(f"Found broadcast: {b_name}")
 
         except berserk.exceptions.ResponseError:
             print("No broadcast found.")
             sys.exit(0)
 
-        self.broadcast = broadcast["tour"]
-        self.round_id = broadcast["rounds"][-1 if not round else round]["id"]
+        self.broadcast = broadcast
+        self.round_id = broadcast["games"][-1 if not round else round]["id"]
+        self.slug = "round"
 
         if self.game_id == 0:
             self.round_setup()
@@ -46,20 +47,22 @@ class LichessBroadcast:
         return pgn_list
 
     def round_setup(self):
-        self.client.broadcasts.push_pgn_update(
-            self.round_id, slug="round", pgn_games=self.pgn_list
-        )
+        pass  # Disabled online interaction
+    """self.client.broadcasts.push_pgn_update(
+            self.round_id, slug=self.slug, pgn_games=self.pgn_list
+        )"""
 
     def push_current_pgn(self):
         try:
+            return  # Disabled online interaction
             self.client.broadcasts.push_pgn_update(
-                self.round_id, slug="round", pgn_games=self.pgn_list
+                self.round_id, slug=self.slug, pgn_games=self.pgn_list
             )
         except:
             session = berserk.TokenSession(self.token)
             self.client = berserk.Client(session)
             self.client.broadcasts.push_pgn_update(
-                self.round_id, slug="round", pgn_games=self.pgn_list
+                self.round_id, slug=self.slug, pgn_games=self.pgn_list
             )
             print("Reconnected to Lichess.")
 
