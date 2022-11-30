@@ -5,10 +5,12 @@ import chess.svg
 app = Flask(__name__)
 board = chess.Board()
 
+
 @app.route("/show")
 def displayBoard():
     svgdata = chess.svg.board(board)
     return f"<meta http-equiv=\"refresh\" content=\"1\"><svg>{svgdata}</svg>"
+
 
 @app.post('/updateBoard')
 def updateBoard():

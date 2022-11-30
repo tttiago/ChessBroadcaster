@@ -4,6 +4,7 @@ import cv2
 use_usb = True
 use_v4l2 = True
 
+
 @dataclass
 class CameraInfo:
     if not use_usb:

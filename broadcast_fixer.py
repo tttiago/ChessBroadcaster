@@ -9,7 +9,8 @@ class BroadcastFixer:
         self.CLOCK_COMBINATION = {"y", str(broadcast.game_id + 1)}
         self.current = set()  # The currently active keys.
         self.broadcast = broadcast
-        self.listener = keyboard.Listener(on_press=self._on_press, on_release=self._on_release)
+        self.listener = keyboard.Listener(
+            on_press=self._on_press, on_release=self._on_release)
 
     def _on_press(self, key):
         try:
@@ -18,7 +19,7 @@ class BroadcastFixer:
                 self.current.add(key.char)
                 if all(k in self.current for k in self.UNDO_COMBINATION):
                     self._correct_moves()
-                    
+
             # Correct clock times if both 'Y' and the number of the board are pressed:
             if key.char in self.CLOCK_COMBINATION:
                 self.current.add(key.char)

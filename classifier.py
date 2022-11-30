@@ -18,19 +18,23 @@ class Classifier:
         self.inverted_edges = cv2.bitwise_not(self.edges)
         self.dist = cv2.distanceTransform(self.inverted_edges, cv2.DIST_L2, 3)
         self.dist_board = [
-            [self.get_square_image(row, column, self.dist) for column in range(8)]
+            [self.get_square_image(row, column, self.dist)
+             for column in range(8)]
             for row in range(8)
         ]
         self.edge_board = [
-            [self.get_square_image(row, column, self.edges) for column in range(8)]
+            [self.get_square_image(row, column, self.edges)
+             for column in range(8)]
             for row in range(8)
         ]
         self.gradient_x = [
-            [self.get_square_image(row, column, self.img_x) for column in range(8)]
+            [self.get_square_image(row, column, self.img_x)
+             for column in range(8)]
             for row in range(8)
         ]
         self.gradient_y = [
-            [self.get_square_image(row, column, self.img_y) for column in range(8)]
+            [self.get_square_image(row, column, self.img_y)
+             for column in range(8)]
             for row in range(8)
         ]
 
@@ -42,7 +46,8 @@ class Classifier:
             max([(6, i) for i in range(8)], key=intensity),
         ]
 
-        self.templates = [pawn_templates] + [[(0, i), (7, i)] for i in range(5)]
+        self.templates = [pawn_templates] + \
+            [[(0, i), (7, i)] for i in range(5)]
 
         if intensity((0, 6)) > intensity((0, 1)):
             self.templates[2][0] = (0, 6)
@@ -94,7 +99,8 @@ class Classifier:
                         dp = np.abs(dp)
                         dp[dp > 1.0] = 1.0
                         angle_difference = np.arccos(dp)
-                        r_o = np.multiply(angle_difference, e).sum() / (e_c * (pi / 2))
+                        r_o = np.multiply(angle_difference,
+                                          e).sum() / (e_c * (pi / 2))
                         piece_scores.append(r_d * 0.5 + r_o * 0.5)
                     template_scores.append(min(piece_scores))
                 min_score = float("inf")

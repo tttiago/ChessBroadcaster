@@ -10,7 +10,8 @@ from bs4 import BeautifulSoup
 
 
 def create_parser():
-    parser = argparse.ArgumentParser(description="Scrape chess-results to get pairings metadata.")
+    parser = argparse.ArgumentParser(
+        description="Scrape chess-results to get pairings metadata.")
     parser.add_argument(
         "-t",
         "--tournament-id",
@@ -59,7 +60,7 @@ if __name__ == "__main__":
 
     table = soup.find("table", {"class": "CRs1"})
     players, ratings = [], []
-    for row in table.findAll("tr")[1 : n_boards + 1]:
+    for row in table.findAll("tr")[1: n_boards + 1]:
         for name_row in row.select("td:has(a)"):
             players.append(name_row.get_text())
         for rating_row in row.select(".CRr"):

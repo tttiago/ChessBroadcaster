@@ -85,5 +85,6 @@ class LichessBroadcast:
         what_clock = (self.num_half_moves - 1) % 2
         self.clock_times[what_clock] -= elapsed_time
         self.clock_times[what_clock] += self.increment
-        clock_str = str(datetime.timedelta(seconds=self.clock_times[what_clock])).split(".")[0]
+        clock_str = str(datetime.timedelta(
+            seconds=self.clock_times[what_clock])).split(".")[0]
         return f" {{[%clk {clock_str}]}}"

@@ -39,7 +39,8 @@ class Broadcast:
         squares = []
         for row in range(8):
             for column in range(8):
-                square_name = self.board_basics.convert_row_column_to_square_name(row, column)
+                square_name = self.board_basics.convert_row_column_to_square_name(
+                    row, column)
                 square = chess.parse_square(square_name)
                 piece = self.board.piece_at(square)
                 square_image = get_square_image(row, column, frame)
@@ -54,7 +55,8 @@ class Broadcast:
         labels_squares = np.zeros((len(squares_hog), 1), np.int32)
         pieces_hog = np.array(pieces_hog)
         squares_hog = np.array(squares_hog)
-        features = np.float32(np.concatenate((pieces_hog, squares_hog), axis=0))
+        features = np.float32(np.concatenate(
+            (pieces_hog, squares_hog), axis=0))
         labels = np.concatenate((labels_pieces, labels_squares), axis=0)
         self.knn.train(features, cv2.ml.ROW_SAMPLE, labels)
         self.features = features
@@ -63,7 +65,8 @@ class Broadcast:
     def detect_state_hog(self, chessboard_image):
         chessboard_image = cv2.cvtColor(chessboard_image, cv2.COLOR_BGR2GRAY)
         chessboard = [
-            [get_square_image(row, column, chessboard_image) for column in range(8)]
+            [get_square_image(row, column, chessboard_image)
+             for column in range(8)]
             for row in range(8)
         ]
 
@@ -83,13 +86,15 @@ class Broadcast:
                 )
                 knn_row.append(result[0][0])
             knn_result.append(knn_row)
-        board_state = [[knn_result[row][column] > 0.5 for column in range(8)] for row in range(8)]
+        board_state = [[knn_result[row][column] >
+                        0.5 for column in range(8)] for row in range(8)]
         return board_state
 
     def get_valid_move_hog(self, fgmask, frame):
         print("Hog working")
         board = [
-            [self.board_basics.get_square_image(row, column, fgmask).mean() for column in range(8)]
+            [self.board_basics.get_square_image(
+                row, column, fgmask).mean() for column in range(8)]
             for row in range(8)
         ]
         potential_squares = []
@@ -99,7 +104,8 @@ class Broadcast:
                 score = board[row][column]
                 if score < 10.0:
                     continue
-                square_name = self.board_basics.convert_row_column_to_square_name(row, column)
+                square_name = self.board_basics.convert_row_column_to_square_name(
+                    row, column)
                 square = chess.parse_square(square_name)
                 potential_squares.append(square)
                 square_scores[square] = score
@@ -115,7 +121,8 @@ class Broadcast:
                 self.board.push(move)
                 if self.check_state_hog(board_result):
                     self.board.pop()
-                    total_score = square_scores[move.from_square] + square_scores[move.to_square]
+                    total_score = square_scores[move.from_square] + \
+                        square_scores[move.to_square]
                     potential_moves.append((total_score, move.uci()))
                 else:
                     self.board.pop()
@@ -138,7 +145,8 @@ class Broadcast:
     def check_state_hog(self, result):
         for row in range(8):
             for column in range(8):
-                square_name = self.board_basics.convert_row_column_to_square_name(row, column)
+                square_name = self.board_basics.convert_row_column_to_square_name(
+                    row, column)
                 square = chess.parse_square(square_name)
                 piece = self.board.piece_at(square)
                 if piece and (not result[row][column]):
@@ -152,7 +160,8 @@ class Broadcast:
     def check_state_for_move(self, result):
         for row in range(8):
             for column in range(8):
-                square_name = self.board_basics.convert_row_column_to_square_name(row, column)
+                square_name = self.board_basics.convert_row_column_to_square_name(
+                    row, column)
                 square = chess.parse_square(square_name)
                 piece = self.board.piece_at(square)
                 if piece and (True not in result[row][column]):
@@ -168,7 +177,8 @@ class Broadcast:
             for column in range(8):
                 if len(result[row][column]) > 1:
                     result[row][column] = [result_hog[row][column]]
-                square_name = self.board_basics.convert_row_column_to_square_name(row, column)
+                square_name = self.board_basics.convert_row_column_to_square_name(
+                    row, column)
                 square = chess.parse_square(square_name)
                 piece = self.board.piece_at(square)
                 if piece and (False in result[row][column]):
@@ -182,7 +192,8 @@ class Broadcast:
     def get_valid_move_canny(self, fgmask, frame):
         print("Canny working")
         board = [
-            [self.board_basics.get_square_image(row, column, fgmask).mean() for column in range(8)]
+            [self.board_basics.get_square_image(
+                row, column, fgmask).mean() for column in range(8)]
             for row in range(8)
         ]
         potential_squares = []
@@ -192,14 +203,16 @@ class Broadcast:
                 score = board[row][column]
                 if score < 10.0:
                     continue
-                square_name = self.board_basics.convert_row_column_to_square_name(row, column)
+                square_name = self.board_basics.convert_row_column_to_square_name(
+                    row, column)
                 square = chess.parse_square(square_name)
                 potential_squares.append(square)
                 square_scores[square] = score
 
         potential_moves = []
 
-        board_result = detect_state(frame, self.board_basics.d[0], self.roi_mask)
+        board_result = detect_state(
+            frame, self.board_basics.d[0], self.roi_mask)
         for move in self.board.legal_moves:
             if (move.from_square in potential_squares) and (move.to_square in potential_squares):
                 if move.promotion and move.promotion != chess.QUEEN:
@@ -207,7 +220,8 @@ class Broadcast:
                 self.board.push(move)
                 if self.check_state_for_move(board_result):
                     self.board.pop()
-                    total_score = square_scores[move.from_square] + square_scores[move.to_square]
+                    total_score = square_scores[move.from_square] + \
+                        square_scores[move.to_square]
                     potential_moves.append((total_score, move.uci()))
                 else:
                     self.board.pop()
@@ -222,13 +236,16 @@ class Broadcast:
             potential_squares,
             potential_moves,
         ) = self.board_basics.get_potential_moves(fgmask, previous_frame, next_frame, self.board)
-        success, valid_move_string = self.get_valid_move(potential_squares, potential_moves)
+        success, valid_move_string = self.get_valid_move(
+            potential_squares, potential_moves)
         print("Valid move string: " + valid_move_string)
         if not success:
-            success, valid_move_string = self.get_valid_move_canny(fgmask, next_frame)
+            success, valid_move_string = self.get_valid_move_canny(
+                fgmask, next_frame)
             print("Valid move string 2: " + valid_move_string)
             if not success:
-                success, valid_move_string = self.get_valid_move_hog(fgmask, next_frame)
+                success, valid_move_string = self.get_valid_move_hog(
+                    fgmask, next_frame)
                 print("Valid move string 3: " + valid_move_string)
             if success:
                 pass
@@ -241,15 +258,15 @@ class Broadcast:
         self.played_moves.append(valid_move_UCI)
         self.executed_moves.append(self.board.san(valid_move_UCI))
 
-        #self.internet_broadcast.move(self.executed_moves[-1])
+        # self.internet_broadcast.move(self.executed_moves[-1])
         self.board.push(valid_move_UCI)
 
         if not requests.post(
             "http://127.0.0.1:5000/updateBoard",
-            data=valid_move_string):
+                data=valid_move_string):
             print("ERROR: post failed")
 
-        #board_rendering.render(self.board)
+        # board_rendering.render(self.board)
 
         self.learn(next_frame)
         return True
@@ -262,30 +279,35 @@ class Broadcast:
 
         for row in range(8):
             for column in range(8):
-                square_name = self.board_basics.convert_row_column_to_square_name(row, column)
+                square_name = self.board_basics.convert_row_column_to_square_name(
+                    row, column)
                 square = chess.parse_square(square_name)
                 piece = self.board.piece_at(square)
                 if piece and (not result[row][column]):
                     print("Learning piece at " + square_name)
                     piece_hog = self.hog.compute(
-                        cv2.resize(get_square_image(row, column, frame), (64, 64))
+                        cv2.resize(get_square_image(
+                            row, column, frame), (64, 64))
                     )
                     new_pieces.append(piece_hog)
                 if (not piece) and (result[row][column]):
                     print("Learning empty at " + square_name)
                     square_hog = self.hog.compute(
-                        cv2.resize(get_square_image(row, column, frame), (64, 64))
+                        cv2.resize(get_square_image(
+                            row, column, frame), (64, 64))
                     )
                     new_squares.append(square_hog)
         labels_pieces = np.ones((len(new_pieces), 1), np.int32)
         labels_squares = np.zeros((len(new_squares), 1), np.int32)
         if new_pieces:
             new_pieces = np.array(new_pieces)
-            self.features = np.float32(np.concatenate((self.features, new_pieces), axis=0))
+            self.features = np.float32(np.concatenate(
+                (self.features, new_pieces), axis=0))
             self.labels = np.concatenate((self.labels, labels_pieces), axis=0)
         if new_squares:
             new_squares = np.array(new_squares)
-            self.features = np.float32(np.concatenate((self.features, new_squares), axis=0))
+            self.features = np.float32(np.concatenate(
+                (self.features, new_squares), axis=0))
             self.labels = np.concatenate((self.labels, labels_squares), axis=0)
 
         self.features = self.features[:100]
@@ -386,7 +408,8 @@ class Broadcast:
 
         self.internet_broadcast.push_current_pgn()
         print("Done updating broadcast.")
-        game = chess.pgn.read_game(io.StringIO(self.internet_broadcast.pgn_game.split("\n\n")[-1]))
+        game = chess.pgn.read_game(io.StringIO(
+            self.internet_broadcast.pgn_game.split("\n\n")[-1]))
         self.board = game.board()
         self.internet_broadcast.num_half_moves = 0
         for move in game.mainline_moves():

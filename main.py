@@ -57,10 +57,12 @@ motion_fgbg = cv2.createBackgroundSubtractorKNN(history=HISTORY)
 
 filename = f"./constants/constants{cam_id}.bin"
 with open(filename, "rb") as infile:
-    corners, side_view_compensation, rotation_count, roi_mask = pickle.load(infile)
+    corners, side_view_compensation, rotation_count, roi_mask = pickle.load(
+        infile)
 
 board_basics = BoardBasics(side_view_compensation, rotation_count)
-broadcast = Broadcast(board_basics, token, broadcast_id, pgn_games, roi_mask, game_id)
+broadcast = Broadcast(board_basics, token, broadcast_id,
+                      pgn_games, roi_mask, game_id)
 
 video_capture_thread = Video_capture_thread()
 video_capture_thread.daemon = True
@@ -170,7 +172,8 @@ while not broadcast.board.is_game_over():
                     continue
                 if DEBUG:
                     cv2.imwrite(
-                        "images/" + broadcast.executed_moves[-1] + " frame.jpg",
+                        "images/" +
+                        broadcast.executed_moves[-1] + " frame.jpg",
                         last_frame,
                     )
                     cv2.imwrite(
@@ -178,7 +181,8 @@ while not broadcast.board.is_game_over():
                         fgmask,
                     )
                     cv2.imwrite(
-                        "images/" + broadcast.executed_moves[-1] + " background.jpg",
+                        "images/" +
+                        broadcast.executed_moves[-1] + " background.jpg",
                         previous_frame,
                     )
 
