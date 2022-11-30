@@ -18,7 +18,7 @@ class CameraInfo:
     else:
         # To use with an USB camera (or DroidCam).
         # You may need to change the index to other (small) integer values if you have multiple cameras.
-        cap_index = 4
+        cap_index = 2
         # You may need to try different cap_api's. The default is CAP_ANY. Use CAP_V4L2 in Linux.
         if not use_v4l2:
             cap_api = cv2.CAP_ANY

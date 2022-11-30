@@ -18,10 +18,12 @@ class Broadcast:
     def __init__(
         self, board_basics, token, broadcast_id, pgn_games, roi_mask, game_id, round=None
     ):
+        '''
         assert token
         self.internet_broadcast = LichessBroadcast(
             token, broadcast_id, pgn_games, game_id, round=round
         )
+        '''
         self.board_basics = board_basics
         self.game_id = game_id
         self.executed_moves = []

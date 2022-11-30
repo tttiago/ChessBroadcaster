@@ -262,6 +262,7 @@ else:
 
 print("Side view compensation" + str(side_view_compensation))
 print("Rotation count " + str(rotation_count))
+# XXX: check path to exist before building file!
 filename = f"./constants/constants{cam_id}.bin"
 with open(filename, "wb") as outfile:
     pickle.dump(
