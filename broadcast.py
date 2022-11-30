@@ -16,7 +16,8 @@ import requests
 
 class Broadcast:
     def __init__(
-        self, board_basics, token, broadcast_id, pgn_games, roi_mask, game_id, round=None
+        self, board_basics, token, broadcast_id, pgn_games, roi_mask, game_id,
+        round=None
     ):
         '''
         assert token
