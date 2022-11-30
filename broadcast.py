@@ -10,7 +10,8 @@ from helper import detect_state, get_square_image
 from lichess_broadcast import LichessBroadcast
 
 
-import board_rendering
+#import board_rendering
+import requests
 
 
 class Broadcast:
@@ -243,7 +244,12 @@ class Broadcast:
         #self.internet_broadcast.move(self.executed_moves[-1])
         self.board.push(valid_move_UCI)
 
-        board_rendering.render(self.board)
+        if not requests.post(
+            "http://127.0.0.1:5000/updateBoard",
+            data=valid_move_string):
+            print("ERROR: post failed")
+
+        #board_rendering.render(self.board)
 
         self.learn(next_frame)
         return True
