@@ -15,7 +15,7 @@ Based on the work of Alper Karayaman. See https://github.com/karayaman/Play-onli
 
 4. Run `board_calibration.py`. Check that the corners of your chess board are correctly detected and press key "q" to save detected chess board corners. The program should detect the corners instantly. The square covered by points (0,0), (0,1),(1,0) and (1,1) should be a8. You can rotate the image by pressing key "r" to adjust that. Example chess board detection result:
 
-   ![](./calibrated_board.jpg)
+   ![](./readme_imgs/calibrated_board.jpg)
 
 ## Broadcast setup
 
@@ -24,6 +24,14 @@ Based on the work of Alper Karayaman. See https://github.com/karayaman/Play-onli
 2. Create a new live broadcast at https://lichess.org/broadcast/new. Make sure you create the first round.
 
 3. Copy the broadcast id to the file `broadcast_info.py`. You can get the id by going to the tournament settings of the broadcast, which redirects you to a page with the URL of https://lichess.org/broadcast/{broadcast_id}/edit. The desired id is the string between "broadcast/" and "/edit".
+
+   Note: Make sure you click on this button
+
+   ![](./readme_imgs/button1.png)
+
+   and then
+
+   ![](./readme_imgs/button2.png)
 
 ## Usage
 
