@@ -42,19 +42,19 @@ class BoardBasics:
                     else:
                         dark_black.append(self.get_square_image(row, column, frame))
         ssim_light_white = max(
-            structural_similarity(empty, piece, multichannel=True)
+            structural_similarity(empty, piece, channel_axis=2)
             for piece, empty in zip(light_white, light_empty)
         )
         ssim_light_black = max(
-            structural_similarity(empty, piece, multichannel=True)
+            structural_similarity(empty, piece, channel_axis=2)
             for piece, empty in zip(light_black, light_empty)
         )
         ssim_dark_white = max(
-            structural_similarity(empty, piece, multichannel=True)
+            structural_similarity(empty, piece, channel_axis=2)
             for piece, empty in zip(dark_white, dark_empty)
         )
         ssim_dark_black = max(
-            structural_similarity(empty, piece, multichannel=True)
+            structural_similarity(empty, piece, channel_axis=2)
             for piece, empty in zip(dark_black, dark_empty)
         )
         self.SSIM_THRESHOLD_LIGHT_WHITE = min(
@@ -177,7 +177,7 @@ class BoardBasics:
                 ssim = structural_similarity(
                     next_board[row][column],
                     previous_board[row][column],
-                    multichannel=True,
+                    channel_axis=2,
                 )
                 square_name = self.convert_row_column_to_square_name(row, column)
                 print(ssim, square_name)
