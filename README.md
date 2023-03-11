@@ -68,6 +68,12 @@ To correct moves, press U+BOARD_NUMBER, edit `game_{BOARD_NUMBER-1}.pgn` and pre
 
 To correct clock times, press Y+BOARD_NUMBER, enter both times in 'h:mm:ss, h:mm:ss' format and press Enter. You should enter the time each player had after their last move.
 
+### 3. Util scripts for round setup and finish
+
+- `get_initial_pgns` scrapes chess-results to fill the information in the PGN
+- `start_broadcast` pushes the empty PGN to the lichess broadcast
+- `end_broadcast` marks the round as finished
+
 ## Required libraries
 
 - opencv-python
