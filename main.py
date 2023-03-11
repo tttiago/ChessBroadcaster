@@ -11,7 +11,7 @@ from board_basics import BoardBasics
 from broadcast import Broadcast
 from broadcast_fixer import BroadcastFixer
 from broadcast_info import BroadcastInfo
-from helper import perspective_transform
+from helper_functions import perspective_transform
 from parser_helper import create_parser
 from video_capture import Video_capture_thread
 
@@ -151,8 +151,8 @@ board_basics.initialize_ssim(previous_frame)
 broadcast.initialize_hog(previous_frame)
 previous_frame_queue = deque(maxlen=MAX_QUEUE_LENGTH)
 previous_frame_queue.append(previous_frame)
-while not broadcast.board.is_game_over():
 
+while not broadcast.board.is_game_over():
     sys.stdout.flush()
     frame = video_capture_thread.get_frame()
     frame = perspective_transform(frame, pts1)
@@ -178,6 +178,7 @@ while not broadcast.board.is_game_over():
         previous_frame = previous_frame_queue[0]
 
         if not broadcast.is_light_change(last_frame):
+            # Try to get two moves after each board movement, to detect quick replies.
             for _ in range(2):
                 if not broadcast.register_move(fgmask, previous_frame, last_frame):
                     continue
