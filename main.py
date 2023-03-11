@@ -19,6 +19,10 @@ from video_capture import Video_capture_thread
 
 DEBUG = False
 
+if DEBUG:
+    if not os.path.exists("images/"):
+        os.makedirs("images/")
+
 parser = create_parser(task="broadcast")
 args = parser.parse_args()
 broadcast_info = BroadcastInfo()

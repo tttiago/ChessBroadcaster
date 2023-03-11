@@ -1,5 +1,6 @@
 """Calibrate a single camera using an empty board."""
 
+import os
 import pickle
 import sys
 import tkinter as tk
@@ -16,6 +17,9 @@ from parser_helper import create_parser
 DEBUG = False
 SHOW_INFO = True
 
+if DEBUG:
+    if not os.path.exists("images/"):
+        os.makedirs("images/")
 
 parser = create_parser(task="calibrate")
 args = parser.parse_args()
