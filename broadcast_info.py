@@ -1,4 +1,5 @@
-"""Information relevant for the broadcast."""
+"""Information relevant for the broadcast.
+Includes camera IPs and password, and Lichess token and broadcast_id."""
 
 import os
 from dataclasses import dataclass

@@ -1,3 +1,6 @@
+"""Validate potential moves given the board state.
+Handle move and clock corrections."""
+
 import io
 import re
 
@@ -6,7 +9,7 @@ import chess.pgn
 import cv2
 import numpy as np
 
-from helper import detect_state, get_square_image
+from helper_functions import detect_state, get_square_image
 from lichess_broadcast import LichessBroadcast
 
 

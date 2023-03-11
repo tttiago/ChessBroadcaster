@@ -1,4 +1,8 @@
-"""Handle the calls to correct the broadcasted moves and the clock times."""
+"""Handle the calls to correct the broadcasted moves and the clock times.
+Pressing U+{board_number} after editing the pgn file allows to update the game state and upload
+to lichess.
+Pressing Y+{board_number} and then the clock times allows to update clock times.
+"""
 
 from pynput import keyboard
 
@@ -18,7 +22,7 @@ class BroadcastFixer:
                 self.current.add(key.char)
                 if all(k in self.current for k in self.UNDO_COMBINATION):
                     self._correct_moves()
-                    
+
             # Correct clock times if both 'Y' and the number of the board are pressed:
             if key.char in self.CLOCK_COMBINATION:
                 self.current.add(key.char)

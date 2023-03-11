@@ -1,3 +1,5 @@
+"""Get the potential moves and handle the structural similarity thresholds."""
+
 import chess
 from skimage.metrics import structural_similarity
 

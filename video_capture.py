@@ -1,3 +1,5 @@
+"""Capture video stream in a different thread."""
+
 from queue import Queue
 from threading import Thread
 
