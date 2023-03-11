@@ -17,9 +17,12 @@ from parser_helper import create_parser
 DEBUG = False
 SHOW_INFO = True
 
+# Create needed folders if they don't exist.
 if DEBUG:
     if not os.path.exists("images/"):
         os.makedirs("images/")
+if not os.path.exists("constants/"):
+    os.makedirs("constants/")
 
 parser = create_parser(task="calibrate")
 args = parser.parse_args()
