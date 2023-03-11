@@ -44,11 +44,11 @@ Based on the work of Alper Karayaman. See https://github.com/karayaman/Play-onli
 
 ## TODO
 
+- Improve board calibration (allow to calibrate with pieces on board; handle camera movement mid-game).
 - Improve documentation.
 - Create an intuitive user interface for multi-board broadcasting.
-- Integrate the last move recognition improvements by Alper Karayaman at https://github.com/karayaman/Play-online-chess-with-real-chess-board/commit/a4361304c68f75b88bfefafc904382674a52880c.
 - Handle odd promotions. 
-- Improve board calibration (allow to calibrate with pieces on board; handle camera movement mid-game).
+
 
 ## Additional features
 
