@@ -236,11 +236,16 @@ class Broadcast:
 
         self.played_moves.append(valid_move_UCI)
         self.executed_moves.append(self.board.san(valid_move_UCI))
+        is_capture = self.board.is_capture(valid_move_UCI)
+        color = int(self.board.turn)
 
         self.internet_broadcast.move(self.executed_moves[-1])
         self.board.push(valid_move_UCI)
 
         self.learn(next_frame)
+        self.board_basics.update_ssim(
+            previous_frame, next_frame, valid_move_UCI, is_capture, color
+        )
         return True
 
     def learn(self, frame):
