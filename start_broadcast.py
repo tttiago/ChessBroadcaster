@@ -5,8 +5,8 @@ import os
 from broadcast_info import BroadcastInfo
 from lichess_broadcast import LichessBroadcast
 
-token = os.environ.get("LICHESS_TOKEN")
 broadcast_info = BroadcastInfo()
+token = broadcast_info.lichess_token
 broadcast_id = broadcast_info.broadcast_id
 
 # Load the games metadata from a single PGN file.

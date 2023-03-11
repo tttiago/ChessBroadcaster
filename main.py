@@ -24,7 +24,7 @@ args = parser.parse_args()
 broadcast_info = BroadcastInfo()
 
 # Lichess Token and Broadcast ID
-token = os.environ.get("LICHESS_TOKEN")
+token = broadcast_info.lichess_token
 broadcast_id = broadcast_info.broadcast_id
 
 # Camera setup
