@@ -19,9 +19,12 @@ from video_capture import Video_capture_thread
 
 DEBUG = False
 
+# Create needed folders if they don't exist.
 if DEBUG:
     if not os.path.exists("images/"):
         os.makedirs("images/")
+if not os.path.exists("ongoing_games/"):
+    os.makedirs("ongoing_games/")
 
 parser = create_parser(task="broadcast")
 args = parser.parse_args()
