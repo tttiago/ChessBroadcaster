@@ -61,6 +61,7 @@ MOTION_START_THRESHOLD = 1.0
 HISTORY = 100
 MAX_MOVE_MEAN = 50
 COUNTER_MAX_VALUE = 3
+MAX_QUEUE_LENGTH = 75
 ####################################
 
 move_fgbg = cv2.createBackgroundSubtractorKNN()
@@ -95,6 +96,7 @@ pts1 = np.float32(
 
 
 def waitUntilMotionCompletes():
+    """Halt program until motion over the board is completed."""
     counter = 0
     while counter < COUNTER_MAX_VALUE:
         frame = video_capture_thread.get_frame()
@@ -147,7 +149,7 @@ def stabilize_background_subtractors():
 previous_frame = stabilize_background_subtractors()
 board_basics.initialize_ssim(previous_frame)
 broadcast.initialize_hog(previous_frame)
-previous_frame_queue = deque(maxlen=10)
+previous_frame_queue = deque(maxlen=MAX_QUEUE_LENGTH)
 previous_frame_queue.append(previous_frame)
 while not broadcast.board.is_game_over():
 
@@ -193,7 +195,7 @@ while not broadcast.board.is_game_over():
                         previous_frame,
                     )
 
-        previous_frame_queue = deque(maxlen=75)
+        previous_frame_queue = deque(maxlen=MAX_QUEUE_LENGTH)
         previous_frame_queue.append(last_frame)
     else:
         move_fgbg.apply(frame)
