@@ -4,14 +4,20 @@ import os
 import pickle
 import sys
 import tkinter as tk
-from math import inf, sqrt
+from math import inf
 from tkinter import messagebox
 
 import cv2
 import numpy as np
 
 from broadcast_info import BroadcastInfo
-from helper import edge_detection, perspective_transform, rotateMatrix
+from helper import (
+    edge_detection,
+    euclidean_distance,
+    mark_corners,
+    perspective_transform,
+    rotateMatrix,
+)
 from parser_helper import create_parser
 
 DEBUG = False
@@ -34,54 +40,6 @@ cam_pwd = broadcast_info.camera_password
 stream = args.stream
 RTSP_URL = f"rtsp://camera{cam_id}:{cam_pwd}@{cam_ip}:554/stream{stream}"
 cap_api = cv2.CAP_FFMPEG
-
-
-def mark_corners(frame, augmented_corners, rotation_count):
-    height, width = frame.shape[:2]
-    if rotation_count == 1:
-        frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
-    elif rotation_count == 2:
-        frame = cv2.rotate(frame, cv2.ROTATE_180)
-    elif rotation_count == 3:
-        frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
-
-    for i in range(len(augmented_corners)):
-        for j in range(len(augmented_corners[i])):
-            if rotation_count == 0:
-                index = str(i) + "," + str(j)
-                corner = augmented_corners[i][j]
-            elif rotation_count == 1:
-                index = str(j) + "," + str(8 - i)
-                corner = (
-                    height - augmented_corners[i][j][1],
-                    augmented_corners[i][j][0],
-                )
-            elif rotation_count == 2:
-                index = str(8 - i) + "," + str(8 - j)
-                corner = (
-                    width - augmented_corners[i][j][0],
-                    height - augmented_corners[i][j][1],
-                )
-            elif rotation_count == 3:
-                index = str(8 - j) + "," + str(i)
-                corner = (
-                    augmented_corners[i][j][1],
-                    width - augmented_corners[i][j][0],
-                )
-            corner = (int(corner[0]), int(corner[1]))
-            frame = cv2.putText(
-                frame,
-                index,
-                corner,
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.5,
-                (255, 0, 0),
-                1,
-                cv2.LINE_AA,
-            )
-
-    return frame
-
 
 if SHOW_INFO:
     root = tk.Tk()
@@ -245,11 +203,6 @@ while True:
 
 cap.release()
 cv2.destroyAllWindows()
-
-
-def euclidean_distance(first, second):
-    return sqrt((first[0] - second[0]) ** 2 + (first[1] - second[1]) ** 2)
-
 
 first_row = euclidean_distance(augmented_corners[1][1], augmented_corners[1][7])
 last_row = euclidean_distance(augmented_corners[7][1], augmented_corners[7][7])

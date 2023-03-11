@@ -1,5 +1,7 @@
 """Helper functions used in the move detection logic."""
 
+from math import sqrt
+
 import cv2
 import numpy as np
 
@@ -93,3 +95,56 @@ def detect_state(frame, view, roi_mask):
         [contains_piece(board_image[row][column], view) for column in range(8)] for row in range(8)
     ]
     return result
+
+
+def mark_corners(frame, augmented_corners, rotation_count):
+    """Mark board and squares after detection."""
+    height, width = frame.shape[:2]
+    if rotation_count == 1:
+        frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
+    elif rotation_count == 2:
+        frame = cv2.rotate(frame, cv2.ROTATE_180)
+    elif rotation_count == 3:
+        frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+
+    for i in range(len(augmented_corners)):
+        for j in range(len(augmented_corners[i])):
+            if rotation_count == 0:
+                index = str(i) + "," + str(j)
+                corner = augmented_corners[i][j]
+            elif rotation_count == 1:
+                index = str(j) + "," + str(8 - i)
+                corner = (
+                    height - augmented_corners[i][j][1],
+                    augmented_corners[i][j][0],
+                )
+            elif rotation_count == 2:
+                index = str(8 - i) + "," + str(8 - j)
+                corner = (
+                    width - augmented_corners[i][j][0],
+                    height - augmented_corners[i][j][1],
+                )
+            elif rotation_count == 3:
+                index = str(8 - j) + "," + str(i)
+                corner = (
+                    augmented_corners[i][j][1],
+                    width - augmented_corners[i][j][0],
+                )
+            corner = (int(corner[0]), int(corner[1]))
+            frame = cv2.putText(
+                frame,
+                index,
+                corner,
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                (255, 0, 0),
+                1,
+                cv2.LINE_AA,
+            )
+
+    return frame
+
+
+def euclidean_distance(first, second):
+    """Get euclidean distance between two 2D points."""
+    return sqrt((first[0] - second[0]) ** 2 + (first[1] - second[1]) ** 2)
