@@ -4,11 +4,13 @@ import cv2
 
 from broadcast_info import BroadcastInfo
 
+CAMERA_ID = 2
+
 # To use Tapo Cameras.
 broadcast_info = BroadcastInfo()
 pwd = broadcast_info.camera_password
-camera_ip = broadcast_info.IPs[4]
-RTSP_URL = f"rtsp://camera5:{pwd}@{camera_ip}/stream1"
+camera_ip = broadcast_info.IPs[CAMERA_ID - 1]
+RTSP_URL = f"rtsp://camera{CAMERA_ID}:{pwd}@{camera_ip}/stream1"
 cap_index = RTSP_URL
 cap_api = cv2.CAP_FFMPEG
 
