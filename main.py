@@ -63,7 +63,7 @@ MOTION_START_THRESHOLD = 1.0
 HISTORY = 100
 MAX_MOVE_MEAN = 50
 COUNTER_MAX_VALUE = 3
-MAX_QUEUE_LENGTH = 75
+MAX_QUEUE_LENGTH = 10
 ####################################
 
 move_fgbg = cv2.createBackgroundSubtractorKNN()
@@ -86,7 +86,7 @@ broadcast_fixer = BroadcastFixer(broadcast)
 listener = broadcast_fixer.listener
 listener.start()
 
-# pts1 is the list of coordinates of the four chessboard corners (order ????: a8, a1, h8, h1; format: (x, y))
+# pts1 is the list of coordinates of the four chessboard corners (order: a1, h1, a8, h8; format: (x, y))
 pts1 = np.float32(
     [
         list(corners[0][0]),
@@ -95,7 +95,7 @@ pts1 = np.float32(
         list(corners[8][8]),
     ]
 )
-print(pts1)
+# print(pts1)
 
 
 def waitUntilMotionCompletes():
@@ -175,9 +175,9 @@ def getboardloc_complete(mask, prevxsquare):
     xyratio = 1.115
     if prevxsquare == 0:
         # xsquare = 21
-        xsquare = 30
-        minxsquare = 30
-        maxxsquare = 60
+        xsquare = 39
+        minxsquare = 39
+        maxxsquare = 43
         # minxsquare = 21
         # maxxsquare = 46
         # minangle = -40
@@ -257,10 +257,11 @@ def gen_mask(sizex, sizey, topleftcolour):
 
 
 def rotatepoint(pt, alpha, img):
-    xr = pt[0]
-    yr = pt[1]
-    alpha = alpha * math.pi / 180
     h, w = img.shape[:2]
+    alpha = -alpha * math.pi / 180
+    yr = w * math.sin(alpha) + h * math.cos(alpha) - pt[1]
+    xr = pt[0]
+
     x0 = math.sin(alpha) * h
     y2 = math.tan(alpha) * (xr - x0)
     y1 = yr - y2
@@ -268,7 +269,7 @@ def rotatepoint(pt, alpha, img):
     x2 = math.tan(alpha) * y
     x1 = y2 / math.sin(alpha)
     x = x1 + x2
-    ptout = (x, y)
+    ptout = (x, h - y)
     return ptout
 
 
@@ -309,6 +310,7 @@ while not broadcast.board.is_game_over():
         anglemax, top_left, xsquaremax, max_val_hist = getboardloc_complete(mask, xsquaremax)
         print("Finish getboardloccomplete")
         xsquare = xsquaremax
+        print(xsquaremax)
         ysquare = 1.115 * xsquare
         xx = xsquare * 8
         yy = ysquare * 8
@@ -338,7 +340,6 @@ while not broadcast.board.is_game_over():
         #     trigger = True
 
     # print(pts1)
-
     frame = perspective_transform(frame, pts1)
     cv2.imshow("frame_depois", frame)
     cv2.waitKey(1)
