@@ -1,3 +1,4 @@
+import math
 import os
 import pickle
 import sys
@@ -85,7 +86,7 @@ broadcast_fixer = BroadcastFixer(broadcast)
 listener = broadcast_fixer.listener
 listener.start()
 
-
+# pts1 is the list of coordinates of the four chessboard corners (order ????: a8, a1, h8, h1; format: (x, y))
 pts1 = np.float32(
     [
         list(corners[0][0]),
@@ -255,6 +256,22 @@ def gen_mask(sizex, sizey, topleftcolour):
     return mask
 
 
+def rotatepoint(pt, alpha, img):
+    xr = pt[0]
+    yr = pt[1]
+    alpha = alpha * math.pi / 180
+    h, w = img.shape[:2]
+    x0 = math.sin(alpha) * h
+    y2 = math.tan(alpha) * (xr - x0)
+    y1 = yr - y2
+    y = math.cos(alpha) * y1
+    x2 = math.tan(alpha) * y
+    x1 = y2 / math.sin(alpha)
+    x = x1 + x2
+    ptout = (x, y)
+    return ptout
+
+
 ######################## DUARTE VAR INIT ###############################
 
 xsquaremax = 0
@@ -297,22 +314,22 @@ while not broadcast.board.is_game_over():
         yy = ysquare * 8
         pts1 = np.float32(
             [
-                list(top_left),
-                list((top_left[0], top_left[1] + yy)),
-                list((top_left[0] + xx, top_left[1])),
-                list((top_left[0] + xx, top_left[1] + yy)),
+                list(rotatepoint(top_left, anglemax, frame)),
+                list(rotatepoint((top_left[0], top_left[1] + yy), anglemax, frame)),
+                list(rotatepoint((top_left[0] + xx, top_left[1]), anglemax, frame)),
+                list(rotatepoint((top_left[0] + xx, top_left[1] + yy), anglemax, frame)),
             ]
         )
         trigger = False
     else:
-        trigger = False
+        ...
         # top_left, max_val = getboardloc_normal(mask, anglemax, xsquaremax)
         # pts1 = np.float32(
         #     [
-        #         list(top_left),
-        #         list((top_left[0], top_left[1] + yy)),
-        #         list((top_left[0] + xx, top_left[1])),
-        #         list((top_left[0] + xx, top_left[1] + yy)),
+        #         list(rotatepoint(top_left, anglemax, frame)),
+        #         list(rotatepoint((top_left[0], top_left[1] + yy), anglemax, frame)),
+        #         list(rotatepoint((top_left[0] + xx, top_left[1]), anglemax, frame)),
+        #         list(rotatepoint((top_left[0] + xx, top_left[1] + yy), anglemax, frame)),
         #     ]
         # )
         # max_val_hist = max_val_hist * 0.95 + max_val * 0.05
@@ -320,7 +337,8 @@ while not broadcast.board.is_game_over():
         # if max_val_hist < 0.5 or max_val < 0.25:
         #     trigger = True
 
-    frame = imutils.rotate_bound(frame, anglemax)
+    # print(pts1)
+
     frame = perspective_transform(frame, pts1)
     cv2.imshow("frame_depois", frame)
     cv2.waitKey(1)
