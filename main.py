@@ -63,7 +63,7 @@ MOTION_START_THRESHOLD = 1.0
 HISTORY = 100
 MAX_MOVE_MEAN = 50
 COUNTER_MAX_VALUE = 3
-MAX_QUEUE_LENGTH = 10
+MAX_QUEUE_LENGTH = 75
 ####################################
 
 move_fgbg = cv2.createBackgroundSubtractorKNN()
@@ -171,112 +171,137 @@ def corcamera(img):
     return dst
 
 
-def getboardloc_complete(mask, prevxsquare):
-    xyratio = 1.115
-    if prevxsquare == 0:
-        # xsquare = 21
-        xsquare = 39
-        minxsquare = 39
-        maxxsquare = 43
-        # minxsquare = 21
-        # maxxsquare = 46
-        # minangle = -40
-        # maxangle = 40
-        minangle = -20
-        maxangle = 20
-
-        div = 2
+def getboardloc_complete(mask, prev_xsquare_size):
+    """Find the angle and square size of the chess board.
+    Also returns the location of the corner closest to the top-left
+    and the highest convolution value."""
+    if not prev_xsquare_size:
+        x_square_size = 39
+        min_xsquare_size = 39
+        max_xsquare_size = 43
+        max_angle = 20
+        angle_step = 0.5
     else:
-        minxsquare = prevxsquare - 4
-        maxxsquare = prevxsquare + 4
-        xsquare = minxsquare
-        minangle = -20
-        maxangle = 20
-        div = 1
-    ysquare = xsquare * xyratio
-    xx = xsquare * 8
-    yy = ysquare * 8
-    template = gen_mask(xsquare, ysquare, 0)
+        min_xsquare_size = prev_xsquare_size - 4
+        max_xsquare_size = prev_xsquare_size + 4
+        x_square_size = min_xsquare_size
+        max_angle = 20
+        angle_step = 1
+    ysquare_size = x_square_size * XY_RATIO
+
+    template = gen_mask(x_square_size, ysquare_size, 0)
     method = cv2.TM_CCOEFF_NORMED
     rotated = imutils.rotate_bound(mask, -20)
     res = cv2.matchTemplate(template, rotated, method)
-    min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
-    maxmax = max_val
-    top_left = max_loc
-    anglemax = -20
-    xsquaremax = xsquare
-    for xsquare in range(minxsquare, maxxsquare, 1):
-        ysquare = xsquare * xyratio
-        xx = xsquare * 8
-        yy = ysquare * 8
-        template = gen_mask(xsquare, ysquare, 0)
+    # TODO: Ask Duarte what best_max represents.
+    _, best_max, _, top_left = cv2.minMaxLoc(res)
 
-        for angle in range(minangle, maxangle, 1):
-            angle = angle / div
+    best_angle = -max_angle
+    best_xsquare_size = x_square_size
+    for x_square_size in range(min_xsquare_size, max_xsquare_size):
+        ysquare_size = x_square_size * XY_RATIO
+        template = gen_mask(x_square_size, ysquare_size, 0)
+
+        for angle in np.linspace(-max_angle, max_angle, int(2 * max_angle / angle_step) + 1):
             rotated = imutils.rotate_bound(mask, angle)
             res = cv2.matchTemplate(template, rotated, method)
-            min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
-            if max_val > maxmax:
-                maxmax = max_val
-                # print(maxmax)
-                anglemax = angle
+            _, cur_max_val, _, max_loc = cv2.minMaxLoc(res)
+            if cur_max_val > best_max:
+                best_max = cur_max_val
+                best_angle = angle
                 top_left = max_loc
-                xsquaremax = xsquare
+                best_xsquare_size = x_square_size
+    if DEBUG:
+        print(f"{best_angle=}")
 
-    return anglemax, top_left, xsquaremax, maxmax
+    return best_angle, top_left, best_xsquare_size, best_max
 
 
-def getboardloc_normal(mask, anglemax, xsquare):
+def getboardloc_normal(mask, anglemax, xsquare_size):
+    # TODO: Ask Duarte what's the point of this function.
     method = cv2.TM_CCOEFF_NORMED
     rotated = imutils.rotate_bound(mask, anglemax)
-    xyratio = 1.115
-    ysquare = xsquare * xyratio
-    xx = xsquare * 8
-    yy = ysquare * 8
-    template = gen_mask(xsquare, ysquare, 0)
+    ysquare_size = xsquare_size * XY_RATIO
+    template = gen_mask(xsquare_size, ysquare_size, 0)
     res = cv2.matchTemplate(template, rotated, method)
-    min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+    _, max_val, _, max_loc = cv2.minMaxLoc(res)
     top_left = max_loc
 
     return top_left, max_val
 
 
-def gen_mask(sizex, sizey, topleftcolour):
-    # Use a breakpoint in the code line below to debug your script.
-    width = round(sizex * 8)
-    height = round(sizey * 8)
+def gen_mask(xquare_size, ysquare_size, topleft_colour):
+    # TODO: Ask Duarte what this does and what is topleft_colour.
+    width = round(xquare_size * 8)
+    height = round(ysquare_size * 8)
     mask = np.zeros((height, width), np.uint8)
     # print(mask)
     for n in range(8):
         for m in range(8):
             mask[
-                round(n * sizey) : round((n + 1) * sizey),
-                round(m * sizex) : round((m + 1) * sizex),
-            ] = (topleftcolour != ((n + m) % 2)) * 255
+                round(n * ysquare_size) : round((n + 1) * ysquare_size),
+                round(m * xquare_size) : round((m + 1) * xquare_size),
+            ] = (topleft_colour != ((n + m) % 2)) * 255
     return mask
 
 
-def rotatepoint(pt, alpha, img):
+def rotate_point(point, angle, img):
+    """Returns the coordinates of a point rotated by `angle` in relation to the image center."""
     h, w = img.shape[:2]
-    alpha = -alpha * math.pi / 180
-    yr = w * math.sin(alpha) + h * math.cos(alpha) - pt[1]
-    xr = pt[0]
 
-    x0 = math.sin(alpha) * h
-    y2 = math.tan(alpha) * (xr - x0)
-    y1 = yr - y2
-    y = math.cos(alpha) * y1
-    x2 = math.tan(alpha) * y
-    x1 = y2 / math.sin(alpha)
-    x = x1 + x2
-    ptout = (x, h - y)
-    return ptout
+    if angle <= 0:
+        angle = abs(angle * math.pi / 180)
+        yr = w * math.sin(angle) + h * math.cos(angle) - point[1]
+        xr = point[0]
+        x0 = math.sin(angle) * h
+        y2 = math.tan(angle) * (xr - x0)
+        y1 = yr - y2
+        y = math.cos(angle) * y1
+        x2 = math.tan(angle) * y
+        x1 = y2 / math.sin(angle)
+        x = x1 + x2
+    else:
+        angle = abs(angle * math.pi / 180)
+        yr = w * math.sin(angle) + h * math.cos(angle) - point[1]
+        xr = point[0]
+        y2 = w * math.sin(angle) - xr * math.tan(angle)
+        y1 = yr - y2
+        y = math.cos(angle) * y1
+        x2 = y2 / math.sin(angle)
+        x1 = y1 * math.sin(angle)
+        x = w - x1 - x2
+
+    rotated_point = (x, h - y)
+    return rotated_point
+
+
+def get_pts1(top_left, best_angle, xsquare_size, frame):
+    """Create list of board corner coordinates
+    using the coordinates of the top left corner, the angle of rotation and the square size."""
+    ysquare_size = XY_RATIO * xsquare_size
+    board_width = xsquare_size * 8
+    board_height = ysquare_size * 8
+    points = np.float32(
+        [
+            list(
+                rotate_point(
+                    (top_left[0] + board_width, top_left[1] + board_height), best_angle, frame
+                )
+            ),
+            list(rotate_point((top_left[0] + board_width, top_left[1]), best_angle, frame)),
+            list(rotate_point((top_left[0], top_left[1] + board_height), best_angle, frame)),
+            list(rotate_point(top_left, best_angle, frame)),
+        ]
+    )
+
+    return points
 
 
 ######################## DUARTE VAR INIT ###############################
 
-xsquaremax = 0
+xsquare_max = None
 trigger = True
+XY_RATIO = 1.115
 
 
 #############################  Main code ################################
@@ -307,39 +332,22 @@ while not broadcast.board.is_game_over():
     method = cv2.TM_CCOEFF_NORMED
 
     if trigger:
-        anglemax, top_left, xsquaremax, max_val_hist = getboardloc_complete(mask, xsquaremax)
-        print("Finish getboardloccomplete")
-        xsquare = xsquaremax
-        print(xsquaremax)
-        ysquare = 1.115 * xsquare
-        xx = xsquare * 8
-        yy = ysquare * 8
-        pts1 = np.float32(
-            [
-                list(rotatepoint(top_left, anglemax, frame)),
-                list(rotatepoint((top_left[0], top_left[1] + yy), anglemax, frame)),
-                list(rotatepoint((top_left[0] + xx, top_left[1]), anglemax, frame)),
-                list(rotatepoint((top_left[0] + xx, top_left[1] + yy), anglemax, frame)),
-            ]
-        )
+        best_angle, top_left, xsquare_max, max_val_hist = getboardloc_complete(mask, xsquare_max)
+        print("Finished getting board coordinates.")
+        xsquare_size = xsquare_max
+        pts1 = get_pts1(top_left, best_angle, xsquare_size, frame)
+
         trigger = False
     else:
-        ...
-        # top_left, max_val = getboardloc_normal(mask, anglemax, xsquaremax)
-        # pts1 = np.float32(
-        #     [
-        #         list(rotatepoint(top_left, anglemax, frame)),
-        #         list(rotatepoint((top_left[0], top_left[1] + yy), anglemax, frame)),
-        #         list(rotatepoint((top_left[0] + xx, top_left[1]), anglemax, frame)),
-        #         list(rotatepoint((top_left[0] + xx, top_left[1] + yy), anglemax, frame)),
-        #     ]
-        # )
-        # max_val_hist = max_val_hist * 0.95 + max_val * 0.05
-        # # print(max_val_hist)
-        # if max_val_hist < 0.5 or max_val < 0.25:
-        #     trigger = True
+        top_left, max_val = getboardloc_normal(mask, best_angle, xsquare_size)
+        pts1 = get_pts1(top_left, best_angle, xsquare_size, frame)
+        max_val_hist = max_val_hist * 0.95 + max_val * 0.05
+        if max_val_hist < 0.5 or max_val < 0.25:
+            trigger = True
 
-    # print(pts1)
+    if DEBUG:
+        print(f"Board corner coordinates:", pts1)
+
     frame = perspective_transform(frame, pts1)
     cv2.imshow("frame_depois", frame)
     cv2.waitKey(1)
