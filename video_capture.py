@@ -1,13 +1,13 @@
 """Capture video stream in a different thread."""
 
-from queue import Queue
+from collections import deque
 from threading import Thread
 
 
 class Video_capture_thread(Thread):
     def __init__(self, *args, **kwargs):
         super(Video_capture_thread, self).__init__(*args, **kwargs)
-        self.queue = Queue()
+        self.queue = deque(maxlen=20)
         self.capture = None
 
     def run(self):
@@ -15,7 +15,10 @@ class Video_capture_thread(Thread):
             ret, frame = self.capture.read()
             if ret == False:
                 continue
-            self.queue.put(frame)
+            self.queue.append(frame)
 
     def get_frame(self):
-        return self.queue.get()
+        while not self.queue:
+            pass
+
+        return self.queue.popleft()

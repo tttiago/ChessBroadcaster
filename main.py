@@ -19,7 +19,7 @@ from video_capture import Video_capture_thread
 
 ################################################################################
 
-DEBUG = False
+DEBUG = True
 
 # Create needed folders if they don't exist.
 if DEBUG:
@@ -63,7 +63,7 @@ MOTION_START_THRESHOLD = 1.0
 HISTORY = 100
 MAX_MOVE_MEAN = 50
 COUNTER_MAX_VALUE = 3
-MAX_QUEUE_LENGTH = 75
+MAX_QUEUE_LENGTH = 20
 ####################################
 
 move_fgbg = cv2.createBackgroundSubtractorKNN()
@@ -79,6 +79,7 @@ broadcast = Broadcast(board_basics, token, broadcast_id, pgn_games, roi_mask, ga
 video_capture_thread = Video_capture_thread()
 video_capture_thread.daemon = True
 video_capture_thread.capture = cv2.VideoCapture(cap_index, cap_api)
+video_capture_thread.capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
 video_capture_thread.start()
 
 # Detect keypresses for the correction of moves and clock times.
@@ -176,9 +177,9 @@ def getboardloc_complete(mask, prev_xsquare_size):
     Also returns the location of the corner closest to the top-left
     and the highest convolution value."""
     if not prev_xsquare_size:
-        x_square_size = 39
-        min_xsquare_size = 39
-        max_xsquare_size = 43
+        x_square_size = 45
+        min_xsquare_size = 45
+        max_xsquare_size = 60
         max_angle = 20
         angle_step = 0.5
     else:
@@ -213,6 +214,7 @@ def getboardloc_complete(mask, prev_xsquare_size):
                 best_xsquare_size = x_square_size
     if DEBUG:
         print(f"{best_angle=}")
+        print(f"{best_xsquare_size=}")
 
     return best_angle, top_left, best_xsquare_size, best_max
 
@@ -247,6 +249,9 @@ def gen_mask(xquare_size, ysquare_size, topleft_colour):
 
 def rotate_point(point, angle, img):
     """Returns the coordinates of a point rotated by `angle` in relation to the image center."""
+    if angle == 0:
+        return point
+
     h, w = img.shape[:2]
 
     if angle <= 0:
@@ -316,9 +321,10 @@ while not broadcast.board.is_game_over():
     sys.stdout.flush()
     frame = video_capture_thread.get_frame()
     # cv2.imshow("frame", frame)
-    # cv2.waitKey(0)
+    # cv2.waitKey(1)
 
     # frame = corcamera(frame)
+    # print(f"{len(previous_frame_queue)=}")
 
     # cv2.imshow("corrected_frame", frame)
     # cv2.waitKey(0)
@@ -336,7 +342,10 @@ while not broadcast.board.is_game_over():
         print("Finished getting board coordinates.")
         xsquare_size = xsquare_max
         pts1 = get_pts1(top_left, best_angle, xsquare_size, frame)
+        # if DEBUG:
+        #     print(f"Board corner coordinates:", pts1)
 
+        # video_capture_thread.empty_queue()
         trigger = False
     else:
         top_left, max_val = getboardloc_normal(mask, best_angle, xsquare_size)
@@ -344,9 +353,6 @@ while not broadcast.board.is_game_over():
         max_val_hist = max_val_hist * 0.95 + max_val * 0.05
         if max_val_hist < 0.5 or max_val < 0.25:
             trigger = True
-
-    if DEBUG:
-        print(f"Board corner coordinates:", pts1)
 
     frame = perspective_transform(frame, pts1)
     cv2.imshow("frame_depois", frame)
