@@ -15,6 +15,6 @@ class BroadcastInfo:
         "192.168.1.98",
         "192.168.1.77",
         "192.168.1.97",
-        "192.168.1.107",
+        "192.168.1.109",
     ]
     camera_password = os.environ.get("CAMERA_GALITOS")
