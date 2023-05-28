@@ -11,9 +11,10 @@ args = parser.parse_args()
 # To use Tapo Cameras.
 broadcast_info = BroadcastInfo()
 cam_id = args.camera_index
+stream = args.stream
 pwd = broadcast_info.camera_password
 camera_ip = broadcast_info.IPs[cam_id - 1]
-RTSP_URL = f"rtsp://camera{cam_id}:{pwd}@{camera_ip}/stream1"
+RTSP_URL = f"rtsp://camera{cam_id}:{pwd}@{camera_ip}/stream{stream}"
 cap_index = RTSP_URL
 cap_api = cv2.CAP_FFMPEG
 
