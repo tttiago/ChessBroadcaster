@@ -1,4 +1,3 @@
-import math
 import os
 import pickle
 import sys
@@ -6,13 +5,13 @@ import time
 from collections import deque
 
 import cv2
-import imutils
 import numpy as np
 
 from board_basics import BoardBasics
 from broadcast import Broadcast
 from broadcast_fixer import BroadcastFixer
 from broadcast_info import BroadcastInfo
+from calibration_functions import get_pts1, getboardloc_complete, getboardloc_normal
 from helper_functions import perspective_transform
 from parser_helper import create_parser
 from video_capture import Video_capture_thread
@@ -151,164 +150,6 @@ def stabilize_background_subtractors():
     return frame
 
 
-################### NEW FUNCTIONS FROM DUARTE ###########################
-
-
-def corcamera(img):
-    mtx = np.matrix(
-        [[786.098795, 0.0, 704.94428], [0.0, 1145.3459778, 415.1591336], [0.0, 0.0, 1.0]]
-    )
-    dist = np.matrix([-0.4021267, 0.1650988, -0.00039044, -0.0003982488, -0.0086298372])
-    h, w = img.shape[:2]
-
-    newcameramtx, roi = cv2.getOptimalNewCameraMatrix(mtx, dist, (w, h), 1, (w, h))
-    # undistort
-    dst = cv2.undistort(img, mtx, dist, None, newcameramtx)
-    # crop the image
-    x, y, w, h = roi
-    dst = dst[y : y + h, x : x + w]
-    img = img[y : y + h, x : x + w]
-
-    return dst
-
-
-def getboardloc_complete(mask, prev_xsquare_size):
-    """Find the angle and square size of the chess board.
-    Also returns the location of the corner closest to the top-left
-    and the highest convolution value."""
-    if not prev_xsquare_size:
-        x_square_size = 45
-        min_xsquare_size = 45
-        max_xsquare_size = 60
-        max_angle = 20
-        angle_step = 0.5
-    else:
-        min_xsquare_size = prev_xsquare_size - 4
-        max_xsquare_size = prev_xsquare_size + 4
-        x_square_size = min_xsquare_size
-        max_angle = 20
-        angle_step = 1
-    ysquare_size = x_square_size * XY_RATIO
-
-    template = gen_mask(x_square_size, ysquare_size, 0)
-    method = cv2.TM_CCOEFF_NORMED
-    rotated = imutils.rotate_bound(mask, -20)
-    res = cv2.matchTemplate(template, rotated, method)
-    # TODO: Ask Duarte what best_max represents.
-    _, best_max, _, top_left = cv2.minMaxLoc(res)
-
-    best_angle = -max_angle
-    best_xsquare_size = x_square_size
-    for x_square_size in range(min_xsquare_size, max_xsquare_size):
-        ysquare_size = x_square_size * XY_RATIO
-        template = gen_mask(x_square_size, ysquare_size, 0)
-
-        for angle in np.linspace(-max_angle, max_angle, int(2 * max_angle / angle_step) + 1):
-            rotated = imutils.rotate_bound(mask, angle)
-            res = cv2.matchTemplate(template, rotated, method)
-            _, cur_max_val, _, max_loc = cv2.minMaxLoc(res)
-            if cur_max_val > best_max:
-                best_max = cur_max_val
-                best_angle = angle
-                top_left = max_loc
-                best_xsquare_size = x_square_size
-    if DEBUG:
-        print(f"{best_angle=}")
-        print(f"{best_xsquare_size=}")
-
-    return best_angle, top_left, best_xsquare_size, best_max
-
-
-def getboardloc_normal(mask, anglemax, xsquare_size):
-    # TODO: Ask Duarte what's the point of this function.
-    method = cv2.TM_CCOEFF_NORMED
-    rotated = imutils.rotate_bound(mask, anglemax)
-    ysquare_size = xsquare_size * XY_RATIO
-    template = gen_mask(xsquare_size, ysquare_size, 0)
-    res = cv2.matchTemplate(template, rotated, method)
-    _, max_val, _, max_loc = cv2.minMaxLoc(res)
-    top_left = max_loc
-
-    return top_left, max_val
-
-
-def gen_mask(xquare_size, ysquare_size, topleft_colour):
-    # TODO: Ask Duarte what this does and what is topleft_colour.
-    width = round(xquare_size * 8)
-    height = round(ysquare_size * 8)
-    mask = np.zeros((height, width), np.uint8)
-    # print(mask)
-    for n in range(8):
-        for m in range(8):
-            mask[
-                round(n * ysquare_size) : round((n + 1) * ysquare_size),
-                round(m * xquare_size) : round((m + 1) * xquare_size),
-            ] = (topleft_colour != ((n + m) % 2)) * 255
-    return mask
-
-
-def rotate_point(point, angle, img):
-    """Returns the coordinates of a point rotated by `angle` in relation to the image center."""
-    if angle == 0:
-        return point
-
-    h, w = img.shape[:2]
-
-    if angle <= 0:
-        angle = abs(angle * math.pi / 180)
-        yr = w * math.sin(angle) + h * math.cos(angle) - point[1]
-        xr = point[0]
-        x0 = math.sin(angle) * h
-        y2 = math.tan(angle) * (xr - x0)
-        y1 = yr - y2
-        y = math.cos(angle) * y1
-        x2 = math.tan(angle) * y
-        x1 = y2 / math.sin(angle)
-        x = x1 + x2
-    else:
-        angle = abs(angle * math.pi / 180)
-        yr = w * math.sin(angle) + h * math.cos(angle) - point[1]
-        xr = point[0]
-        y2 = w * math.sin(angle) - xr * math.tan(angle)
-        y1 = yr - y2
-        y = math.cos(angle) * y1
-        x2 = y2 / math.sin(angle)
-        x1 = y1 * math.sin(angle)
-        x = w - x1 - x2
-
-    rotated_point = (x, h - y)
-    return rotated_point
-
-
-def get_pts1(top_left, best_angle, xsquare_size, frame):
-    """Create list of board corner coordinates
-    using the coordinates of the top left corner, the angle of rotation and the square size."""
-    ysquare_size = XY_RATIO * xsquare_size
-    board_width = xsquare_size * 8
-    board_height = ysquare_size * 8
-    points = np.float32(
-        [
-            list(
-                rotate_point(
-                    (top_left[0] + board_width, top_left[1] + board_height), best_angle, frame
-                )
-            ),
-            list(rotate_point((top_left[0] + board_width, top_left[1]), best_angle, frame)),
-            list(rotate_point((top_left[0], top_left[1] + board_height), best_angle, frame)),
-            list(rotate_point(top_left, best_angle, frame)),
-        ]
-    )
-
-    return points
-
-
-######################## DUARTE VAR INIT ###############################
-
-xsquare_max = None
-trigger = True
-XY_RATIO = 1.115
-
-
 #############################  Main code ################################
 
 previous_frame = stabilize_background_subtractors()
@@ -316,6 +157,11 @@ board_basics.initialize_ssim(previous_frame)
 broadcast.initialize_hog(previous_frame)
 previous_frame_queue = deque(maxlen=MAX_QUEUE_LENGTH)
 previous_frame_queue.append(previous_frame)
+
+# Initial values for calibration variables.
+xsquare_max = None
+require_full_calib = True
+
 
 while not broadcast.board.is_game_over():
     sys.stdout.flush()
@@ -337,36 +183,38 @@ while not broadcast.board.is_game_over():
     # cv2.waitKey(0)
     method = cv2.TM_CCOEFF_NORMED
 
-    if trigger:
-        best_angle, top_left, xsquare_max, max_val_hist = getboardloc_complete(mask, xsquare_max)
+    if require_full_calib:
+        best_angle, top_left, xsquare_size, max_val_hist = getboardloc_complete(mask, xsquare_max)
         print("Finished getting board coordinates.")
-        xsquare_size = xsquare_max
+        xsquare_max = xsquare_size
         pts1 = get_pts1(top_left, best_angle, xsquare_size, frame)
-        # if DEBUG:
-        #     print(f"Board corner coordinates:", pts1)
+        if DEBUG:
+            #     print(f"Board corner coordinates:", pts1)
+            print(f"{best_angle=}")
+            print(f"{xsquare_size=}")
 
-        # video_capture_thread.empty_queue()
-        trigger = False
+        require_full_calib = False
     else:
         top_left, max_val = getboardloc_normal(mask, best_angle, xsquare_size)
         pts1 = get_pts1(top_left, best_angle, xsquare_size, frame)
         max_val_hist = max_val_hist * 0.95 + max_val * 0.05
         if max_val_hist < 0.5 or max_val < 0.25:
-            trigger = True
+            require_full_calib = True
 
     frame = perspective_transform(frame, pts1)
-    cv2.imshow("frame_depois", frame)
-    cv2.waitKey(1)
-
     fgmask = motion_fgbg.apply(frame)
-    cv2.imshow("fgmask_antes", fgmask)
-    cv2.waitKey(1)
-
     ret, fgmask = cv2.threshold(fgmask, 250, 255, cv2.THRESH_BINARY)
     kernel = np.ones((11, 11), np.uint8)
     fgmask = cv2.erode(fgmask, kernel, iterations=1)
-    cv2.imshow("fgmask", fgmask)
-    cv2.waitKey(1)
+
+    if DEBUG:
+        cv2.imshow("frame_depois", frame)
+        cv2.waitKey(1)
+        cv2.imshow("fgmask_antes", fgmask)
+        cv2.waitKey(1)
+        cv2.imshow("fgmask", fgmask)
+        cv2.waitKey(1)
+
     mean = fgmask.mean()
     if mean > MOTION_START_THRESHOLD:
         # cv2.imwrite("motion.jpg", fgmask)
