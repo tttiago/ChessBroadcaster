@@ -7,14 +7,16 @@ from dataclasses import dataclass
 
 @dataclass
 class BroadcastInfo:
-    broadcast_id = "TGQmC5iC"
+    broadcast_id = "FcGvKmME/"
     lichess_token = os.environ.get("LICHESS_TOKEN")
 
     IPs = [
-        "192.168.1.78",
-        "192.168.1.98",
-        "192.168.1.77",
-        "192.168.1.97",
-        "192.168.1.109",
+        "192.168.1.144",
+        "192.168.1.152",
+        "192.168.1.151",
+        "192.168.1.149",
+        "192.168.1.145",
+        "192.168.1.147",
+        "192.168.1.148",
     ]
     camera_password = os.environ.get("CAMERA_GALITOS")
