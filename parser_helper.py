@@ -37,4 +37,13 @@ def create_parser(task="broadcast"):
         default=2,
         help="Index of the stream to be used (1 is 720p, 2 is 360p).",
     )
+    parser.add_argument(
+        "-cr",
+        "--camera-on-right",
+        metavar="CAMERA_ON_RIGHT",
+        type=bool,
+        nargs="?",
+        default=False,
+        help="True if the camera is on the right side of the board.",
+    )
     return parser
