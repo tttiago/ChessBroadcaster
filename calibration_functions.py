@@ -130,23 +130,26 @@ def rotate_point(point, angle, img):
     return rotated_point
 
 
-def get_pts1(top_left, best_angle, xsquare_size, frame):
+def get_pts1(top_left, best_angle, xsquare_size, frame, camera_on_left):
     """Create list of board corner coordinates
     using the coordinates of the top left corner, the angle of rotation and the square size."""
     ysquare_size = XY_RATIO * xsquare_size
     board_width = xsquare_size * 8
     board_height = ysquare_size * 8
-    points = np.float32(
-        [
-            list(
-                rotate_point(
-                    (top_left[0] + board_width, top_left[1] + board_height), best_angle, frame
-                )
-            ),
-            list(rotate_point((top_left[0] + board_width, top_left[1]), best_angle, frame)),
-            list(rotate_point((top_left[0], top_left[1] + board_height), best_angle, frame)),
-            list(rotate_point(top_left, best_angle, frame)),
-        ]
-    )
+    if camera_on_left:
+        points = np.float32(
+            [
+                list(
+                    rotate_point(
+                        (top_left[0] + board_width, top_left[1] + board_height), best_angle, frame
+                    )
+                ),
+                list(rotate_point((top_left[0] + board_width, top_left[1]), best_angle, frame)),
+                list(rotate_point((top_left[0], top_left[1] + board_height), best_angle, frame)),
+                list(rotate_point(top_left, best_angle, frame)),
+            ]
+        )
+    else:
+        ...
 
     return points

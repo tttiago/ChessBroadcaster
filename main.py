@@ -18,7 +18,7 @@ from video_capture import Video_capture_thread
 
 ################################################################################
 
-DEBUG = True
+DEBUG = False
 
 # Create needed folders if they don't exist.
 if DEBUG:
@@ -43,6 +43,8 @@ stream = args.stream
 RTSP_URL = f"rtsp://camera{cam_id}:{cam_pwd}@{cam_ip}:554/stream{stream}"
 cap_api = cv2.CAP_FFMPEG
 cap_index = RTSP_URL
+
+camera_on_left = not args.camera_on_right
 
 # n_boards, from 1 to n ----> game_id from 0 to n-1
 game_id = args.game_id - 1
@@ -187,7 +189,7 @@ while not broadcast.board.is_game_over():
         best_angle, top_left, xsquare_size, max_val_hist = getboardloc_complete(mask, xsquare_max)
         print("Finished getting board coordinates.")
         xsquare_max = xsquare_size
-        pts1 = get_pts1(top_left, best_angle, xsquare_size, frame)
+        pts1 = get_pts1(top_left, best_angle, xsquare_size, frame, camera_on_left)
         if DEBUG:
             #     print(f"Board corner coordinates:", pts1)
             print(f"{best_angle=}")
@@ -196,7 +198,7 @@ while not broadcast.board.is_game_over():
         require_full_calib = False
     else:
         top_left, max_val = getboardloc_normal(mask, best_angle, xsquare_size)
-        pts1 = get_pts1(top_left, best_angle, xsquare_size, frame)
+        pts1 = get_pts1(top_left, best_angle, xsquare_size, frame, camera_on_left)
         max_val_hist = max_val_hist * 0.95 + max_val * 0.05
         if max_val_hist < 0.5 or max_val < 0.25:
             require_full_calib = True
