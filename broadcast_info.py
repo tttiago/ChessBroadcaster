@@ -7,7 +7,8 @@ from dataclasses import dataclass
 
 @dataclass
 class BroadcastInfo:
-    broadcast_id = "FcGvKmME/"
+    broadcast_id = "FcGvKmME/"  # Festival
+    # broadcast_id = "TGQmC5iC" # test
     lichess_token = os.environ.get("LICHESS_TOKEN")
 
     IPs = [
