@@ -17,7 +17,7 @@ def create_parser():
         metavar="TI",
         type=int,
         nargs="?",
-        default=633851,
+        default=717014,
         help="ID of the tournament at chess-results.",
     )
     parser.add_argument(
@@ -33,7 +33,7 @@ def create_parser():
         metavar="N_BOARDS",
         type=int,
         nargs="?",
-        default=5,
+        default=7,
         help="Number of boards to be initialized.",
     )
     return parser
@@ -54,7 +54,7 @@ if __name__ == "__main__":
 
     divs = soup.find_all("div", class_="defaultDialog")
     tournament_name = divs[0].find("h2").get_text().split("|")[0].strip()
-    round_info = divs[1].find("h3").get_text()
+    round_info = divs[2].find("h3").get_text()
     round_date = re.search(r"\d{4}[/.-]\d{2}[/.-]\d{2}", round_info).group()
 
     table = soup.find("table", {"class": "CRs1"})
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     for row in table.findAll("tr")[1 : n_boards + 1]:
         for name_row in row.select("td:has(a)"):
             players.append(name_row.get_text())
-        for rating_row in row.select(".CRr"):
+        for rating_row in row.select(".CRc"):
             ratings.append(rating_row.get_text())
 
     players = [", ".join(player.split()[:2]).title() for player in players]
@@ -73,9 +73,9 @@ if __name__ == "__main__":
             in_file.write(f'[Site "{tournament_place}"]\n')
             in_file.write(f'[Round "{round}.{board}"]\n')
             in_file.write(f'[White "{players[board*2-2]}"]\n')
-            in_file.write(f'[WhiteElo "{ratings[board*2-2]}"]\n')
+            in_file.write(f'[WhiteElo "{ratings[board*8-6]}"]\n')
             in_file.write(f'[Black "{players[board*2-1]}"]\n')
-            in_file.write(f'[BlackElo "{ratings[board*2-1]}"]\n')
+            in_file.write(f'[BlackElo "{ratings[board*8-2]}"]\n')
             in_file.write(f'[Date "{round_date}"]\n')
             if board != n_boards:
                 in_file.write("\n\n")
