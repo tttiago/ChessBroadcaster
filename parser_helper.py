@@ -25,7 +25,7 @@ def create_parser(task="broadcast"):
         metavar="GI",
         type=int,
         nargs="?",
-        default=1,
+        default=None,
         help="Number of the table to be broadcasted (starts at 1).",
     )
     parser.add_argument(

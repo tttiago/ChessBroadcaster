@@ -44,7 +44,10 @@ cap_api = cv2.CAP_FFMPEG
 cap_index = RTSP_URL
 
 # n_boards, from 1 to n ----> game_id from 0 to n-1
-game_id = args.game_id - 1
+if args.game_id:
+    game_id = args.game_id - 1
+else:
+    game_id = cam_id - 1
 
 # Load the games metadata from a single PGN file.
 if not os.path.isfile("initial_games.pgn"):
