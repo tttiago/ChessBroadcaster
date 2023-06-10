@@ -7,6 +7,7 @@ import re
 
 import requests
 from bs4 import BeautifulSoup
+from unidecode import unidecode
 
 
 def create_parser():
@@ -61,7 +62,7 @@ if __name__ == "__main__":
     players, ratings = [], []
     for row in table.findAll("tr")[1 : n_boards + 1]:
         for name_row in row.select("td:has(a)"):
-            players.append(name_row.get_text())
+            players.append(unidecode(name_row.get_text()))
         for rating_row in row.select(".CRc"):
             ratings.append(rating_row.get_text())
 
