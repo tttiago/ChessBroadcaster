@@ -36,8 +36,7 @@ class LichessBroadcast:
         self.broadcast = broadcast["tour"]
         self.round_id = broadcast["rounds"][-1 if not round else round]["id"]
 
-        if self.game_id == 0:
-            self.round_setup()
+        self.round_setup()
 
     @property
     def pgn_list(self):
